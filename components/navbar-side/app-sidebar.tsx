@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, Map, PackageSearch, PieChart, Settings2, Store } from "lucide-react";
+import { AudioWaveform, BookOpen, Command, Map, PackageSearch, PieChart, Settings2, Store } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/navbar-side/nav-main";
