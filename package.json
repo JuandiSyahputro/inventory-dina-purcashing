@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "postinstall": "prisma generate --no-engine",
+    "postinstall": "prisma generate",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,7 +13,6 @@
     "@auth/prisma-adapter": "^2.11.0",
     "@hookform/resolvers": "^5.2.2",
     "@prisma/client": "6.5.0",
-    "@prisma/extension-accelerate": "^2.0.2",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.12",
     "@radix-ui/react-dialog": "^1.1.15",
