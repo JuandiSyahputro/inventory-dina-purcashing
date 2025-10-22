@@ -31,7 +31,9 @@ export function NavMain({
         {items.map((item) => (
           <Collapsible key={item.title} asChild defaultOpen={item.isActive} className="group/collapsible">
             <SidebarMenuItem>
-              <CollapsibleTrigger asChild className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary text-white")}>
+              <CollapsibleTrigger
+                asChild
+                className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary hover:bg-custom-primary-dark/80! text-white!")}>
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
@@ -42,7 +44,7 @@ export function NavMain({
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
-                      <SidebarMenuSubButton asChild className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", pathname === subItem.url && "bg-custom-primary text-white")}>
+                      <SidebarMenuSubButton asChild className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", pathname === subItem.url && "bg-custom-primary text-white hover:bg-custom-primary-dark/80!")}>
                         <Link href={subItem.url}>
                           <span>{subItem.title}</span>
                         </Link>

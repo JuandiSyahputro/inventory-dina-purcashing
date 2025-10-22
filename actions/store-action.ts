@@ -85,6 +85,19 @@ export const updateStore = async (idStore: string, nameStore: string) => {
   const { name, id } = validatedFields.data;
 
   try {
+    const findStore = await prisma.store.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (findStore) {
+      return {
+        message: `${name} already exists`,
+        success: false,
+      };
+    }
+
     const store = await prisma.store.update({
       where: {
         id,

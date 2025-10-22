@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioWaveform, BookOpen, Command, Map, PackageSearch, PieChart, Settings2, Store } from "lucide-react";
+import { AudioWaveform, BookOpen, Command, Map, PackageSearch, PieChart, Settings2, Store, UsersRound } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/navbar-side/nav-main";
@@ -128,19 +128,9 @@ const data = {
   ],
   projects: [
     {
-      name: "Store",
-      url: "/dashboard/store",
-      icon: Store,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
+      name: "Users",
+      url: "/dashboard/users",
+      icon: UsersRound,
     },
   ],
 };

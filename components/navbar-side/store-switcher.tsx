@@ -155,7 +155,7 @@ export function TeamSwitcher({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg" align="start" side={isMobile ? "bottom" : "right"} sideOffset={4}>
+          <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-66 rounded-lg" align="start" side={isMobile ? "bottom" : "right"} sideOffset={4}>
             <DropdownMenuLabel className="text-muted-foreground text-xs">Store</DropdownMenuLabel>
 
             {stores.map((store, index) => (
@@ -163,7 +163,7 @@ export function TeamSwitcher({
                 <div className="flex size-6 items-center justify-center rounded-md border bg-custom-primary text-sidebar-primary-foreground">
                   <Store className="size-3.5 shrink-0" />
                 </div>
-                {store.name}
+                <p className="truncate max-w-[120px]">{store.name}</p>
                 <span
                   className="absolute right-5 flex size-6.5 items-center justify-center rounded-md border bg-custom-primary text-sidebar-primary-foreground hover:cursor-pointer"
                   onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleEditStore({ e, id: store.id, name: store.name })}>
@@ -206,11 +206,11 @@ export function TeamSwitcher({
               </FieldGroup>
               <DialogFooter>
                 <DialogClose asChild>
-                  <Button disabled={pending} variant="outline">
+                  <Button disabled={pending} variant="outline" className="hover:cursor-pointer">
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button disabled={pending} type="submit" className="bg-custom-primary">
+                <Button disabled={pending} type="submit" className="bg-custom-primary hover:bg-custom-primary-dark hover:cursor-pointer">
                   {pending ? <Spinner /> : openDialog.isEdit ? "Save" : "Create"}
                 </Button>
               </DialogFooter>
