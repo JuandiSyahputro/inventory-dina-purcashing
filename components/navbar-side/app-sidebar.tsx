@@ -6,7 +6,7 @@ import * as React from "react";
 import { NavMain } from "@/components/navbar-side/nav-main";
 import { NavProjects } from "@/components/navbar-side/nav-projects";
 import { NavUser } from "@/components/navbar-side/nav-user";
-import { TeamSwitcher } from "@/components/navbar-side/team-switcher";
+import { TeamSwitcher } from "@/components/navbar-side/store-switcher";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {

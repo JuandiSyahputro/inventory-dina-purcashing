@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 
 export const addStore = async (nameStore: string) => {
   const session = await auth();
-  // if (!session || !session.user) redirect("/auth/login");
+  if (!session || !session.user) redirect("/auth/login");
 
   const validatedFields = AddStoreSchema.safeParse({ name: nameStore });
   if (!validatedFields.success)
@@ -72,6 +72,9 @@ export const addStore = async (nameStore: string) => {
 };
 
 export const updateStore = async (idStore: string, nameStore: string) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
   const validatedFields = AddStoreSchema.safeParse({ id: idStore, name: nameStore });
   if (!validatedFields.success)
     return {
@@ -129,6 +132,9 @@ export const updateStore = async (idStore: string, nameStore: string) => {
 };
 
 export const getStores = async () => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
   try {
     const stores = await prisma.store.findMany({
       select: {
