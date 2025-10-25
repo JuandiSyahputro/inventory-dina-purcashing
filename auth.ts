@@ -28,9 +28,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
         const { email, password } = validatedFields.data;
-        const user = await prisma.users.findUnique({
+        const user = await prisma.users.findFirst({
           where: {
-            email,
+            OR: [{ email }, { name: email }],
           },
         });
 

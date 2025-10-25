@@ -17,14 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-export function TeamSwitcher({
-  stores,
-}: {
-  stores: {
-    name: string;
-    id: string;
-  }[];
-}) {
+export function TeamSwitcher({ stores }: StoreTypes) {
   const { isMobile } = useSidebar();
   const { refresh } = useRouter();
   const [selectedStore, setSelectedStore] = useState<string[]>([stores[0]?.name]);

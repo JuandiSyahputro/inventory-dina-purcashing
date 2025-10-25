@@ -12,7 +12,7 @@ export const loginCredentials = async (FormData: FormData) => {
     });
 
     if (result?.error) {
-      return { success: false, message: "Invalid email or password" };
+      return { success: false, message: "Invalid email/username or password" };
     }
 
     // manually redirect on success (in client component)
@@ -24,12 +24,12 @@ export const loginCredentials = async (FormData: FormData) => {
       switch (error.type) {
         case "CredentialsSignin":
           return {
-            message: "Invalid email or password",
+            message: "Invalid email/username or password",
             success: false,
           };
         case "CallbackRouteError":
           return {
-            message: "Invalid email or password",
+            message: "Invalid email/username or password",
             success: false,
           };
 

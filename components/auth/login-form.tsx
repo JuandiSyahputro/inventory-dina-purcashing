@@ -74,12 +74,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
               <FieldLabel htmlFor="email" className="max-lg:text-white">
-                Email
+                Email or Username
               </FieldLabel>
               <Input
                 {...field}
                 id="email"
-                type="email"
+                type="string"
                 placeholder="m@example.com"
                 aria-invalid={fieldState.invalid}
                 className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark focus-visible:border-custom-primary max-lg:focus-visible:text-white  max-lg:text-white"
