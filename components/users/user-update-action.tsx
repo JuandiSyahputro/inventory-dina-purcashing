@@ -1,49 +1,48 @@
 "use client";
-import { addUsers } from "@/actions/users-action";
+import { updateUsers } from "@/actions/users-action";
 import { Button } from "@/components/ui/button";
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectSeparator, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { RegisterSchema } from "@/schema/auth-schema";
+import { EditUserSchema } from "@/schema/users-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, ChevronsUpDown, EyeIcon, EyeOff } from "lucide-react";
+import { Check, ChevronsUpDown, MoreHorizontal } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const FormActionUsers = ({ stores }: StoreTypes) => {
+const UserUpdateAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
   const { refresh } = useRouter();
   const [open, setOpen] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [pending, startTransition] = useTransition();
-  const form = useForm<z.infer<typeof RegisterSchema>>({
-    resolver: zodResolver(RegisterSchema),
+
+  const form = useForm<z.infer<typeof EditUserSchema>>({
+    resolver: zodResolver(EditUserSchema),
     defaultValues: {
-      name: "",
-      storeId: "",
-      role: "",
-      password: "",
-      confirmPassword: "",
+      name: user.name ?? "",
+      storeId: user.store_id,
+      role: user.role ?? "",
+      email: user.email ?? "",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
+  const onSubmit = async (data: z.infer<typeof EditUserSchema>) => {
     const formData = new FormData();
     formData.append("name", data.name);
+    formData.append("email", data.email ?? "");
     formData.append("storeId", data.storeId);
     formData.append("role", data.role);
-    formData.append("password", data.password);
-    formData.append("confirmPassword", data.confirmPassword);
 
     startTransition(async () => {
       try {
-        const result = await addUsers(formData);
+        const result = await updateUsers(user.id, formData);
         if (!result?.success) {
           if (Array.isArray(result?.message)) {
             // If result.message is an array, you can map over it and create a ReactNode array
@@ -64,7 +63,7 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
           return;
         }
 
-        toast.success("Users added successfully", {
+        toast.success("User updated successfully", {
           style: {
             color: "var(--color-custom-success)",
           },
@@ -72,6 +71,7 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
 
         form.reset();
         refresh();
+        setOpenDialog({ updatedUser: false });
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");
@@ -80,19 +80,25 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="default" className="h-8 bg-custom-primary hover:bg-custom-primary-dark cursor-pointer">
-          Add New
-        </Button>
-      </DialogTrigger>
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog({ updatedUser: false })}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
-            <DialogDescription>Make a new user here. Click save when you&apos;re done.</DialogDescription>
+            <DialogTitle>Update User</DialogTitle>
+            <DialogDescription>Update the user here. Click save when you&apos;re done.</DialogDescription>
           </DialogHeader>
           <FieldGroup className="pb-3">
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input aria-invalid={fieldState.invalid} {...field} id="email" placeholder="Jhon Doe...." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
             <Controller
               name="name"
               control={form.control}
@@ -107,11 +113,12 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
             <Controller
               name="storeId"
               control={form.control}
+              defaultValue={user.store_id}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="storename">Store Name</FieldLabel>
                   <Button variant="outline" className="w-full justify-between" role="combobox" aria-expanded={open} onClick={() => setOpen(true)} aria-invalid={fieldState.invalid} type="button">
-                    {field.value ? stores.find((item) => item.id === field.value)?.name : "Choose a store"}
+                    {field.value ? user?.data_stores?.stores.find((item) => item.id === field.value)?.name : "Choose a store"}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
                   <CommandDialog open={open} onOpenChange={setOpen} className="max-w-xs!">
@@ -119,7 +126,7 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                     <CommandList defaultValue={field.value} className="overflow-y-auto max-h-60">
                       <CommandEmpty>No data found.</CommandEmpty>
                       <CommandGroup>
-                        {stores.map((item) => (
+                        {user.data_stores?.stores.map((item) => (
                           <CommandItem
                             key={item.id}
                             onSelect={(currentValue) => {
@@ -159,54 +166,6 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                 </Field>
               )}
             />
-            <Controller
-              name="password"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="password">Password</FieldLabel>
-                  <div className="relative">
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="**********"
-                      autoComplete="new-password"
-                      className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white"
-                    />
-                    <Button tabIndex={-1} className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer" onClick={() => setShowPassword(!showPassword)} type="button">
-                      {!showPassword ? <EyeOff className="text-foreground" size={15} /> : <EyeIcon className="text-foreground" size={15} />}
-                    </Button>
-                  </div>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <Controller
-              name="confirmPassword"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
-                  <div className="relative">
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      id="confirmPassword"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="**********"
-                      autoComplete="new-password"
-                      className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white"
-                    />
-                    <Button tabIndex={-1} className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer" onClick={() => setShowPassword(!showPassword)} type="button">
-                      {!showPassword ? <EyeOff className="text-foreground" size={15} /> : <EyeIcon className="text-foreground" size={15} />}
-                    </Button>
-                  </div>
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
           </FieldGroup>
           <DialogFooter>
             <DialogClose asChild>
@@ -224,4 +183,4 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
   );
 };
 
-export default FormActionUsers;
+export default memo(UserUpdateAction);

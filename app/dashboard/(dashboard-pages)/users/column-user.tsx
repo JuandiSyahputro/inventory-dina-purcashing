@@ -2,6 +2,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import UsersAction from "@/components/users/users-action";
 // import ActionCellUserManagement from "@/components/user-management/action-cell-user-management";
 
 export const columnUser: ColumnDef<UsersTypes>[] = [
@@ -12,20 +13,27 @@ export const columnUser: ColumnDef<UsersTypes>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nama" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Username" />,
   },
   {
     accessorKey: "email",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    cell: ({ row }) => <span>{row.original.email !== "" ? row.original.email : "-"}</span>,
   },
   {
     accessorKey: "role",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Role" />,
   },
-  // {
-  //   id: "actions",
-  //   cell: ({ row }) => {
-  //     return <ActionCellUserManagement user={row.original} />;
-  //   },
-  // },
+  {
+    accessorKey: "store_name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Store" />,
+    cell: ({ row }) => <span>{row.original.store_name ?? "-"}</span>,
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <UsersAction user={row.original} />;
+    },
+  },
 ];
