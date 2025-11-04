@@ -13,6 +13,6 @@ declare global {
   interface UserUpdatedTypes {
     user: UsersTypes;
     openDialog: boolean;
-    setOpenDialog: React.Dispatch<React.SetStateAction<{ updatedUser: boolean }>>;
+    setOpenDialog: React.Dispatch<React.SetStateAction<{ updatedUser: boolean; deletedUser: boolean; changePassword: boolean }>>;
   }
 }

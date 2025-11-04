@@ -20,6 +20,7 @@ import * as z from "zod";
 const FormActionUsers = ({ stores }: StoreTypes) => {
   const { refresh } = useRouter();
   const [open, setOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [pending, startTransition] = useTransition();
   const form = useForm<z.infer<typeof RegisterSchema>>({
@@ -72,6 +73,7 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
 
         form.reset();
         refresh();
+        setOpenDialog(false);
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");
@@ -80,7 +82,7 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>
         <Button variant="default" className="h-8 bg-custom-primary hover:bg-custom-primary-dark cursor-pointer">
           Add New
@@ -149,9 +151,8 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent position="item-aligned">
-                      <SelectItem value="auto">Auto</SelectItem>
-                      <SelectSeparator />
                       <SelectItem value="SUPERADMIN">SUPERADMIN</SelectItem>
+                      <SelectSeparator />
                       <SelectItem value="USER">USER</SelectItem>
                     </SelectContent>
                   </Select>

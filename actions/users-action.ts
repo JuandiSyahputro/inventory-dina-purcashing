@@ -3,9 +3,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { RegisterSchema } from "@/schema/auth-schema";
-import { EditUserSchema } from "@/schema/users-schema";
+import { ChangePassSchema, DeletedSchema, EditUserSchema } from "@/schema/users-schema";
 import { Prisma, Role } from "@prisma/client";
-import { hashSync } from "bcrypt-ts";
+import { compareSync, hashSync } from "bcrypt-ts";
 import { redirect } from "next/navigation";
 
 export const addUsers = async (FormData: FormData) => {
@@ -119,6 +119,94 @@ export const updateUsers = async (id: string, formData: FormData) => {
         };
       }
     }
+    throw error;
+  }
+};
+
+export const deleteUsers = async (id: string) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const validatedFields = DeletedSchema.safeParse({ id });
+  if (!validatedFields.success) {
+    return {
+      message: validatedFields.error.issues,
+      success: false,
+    };
+  }
+
+  try {
+    const response = await prisma.users.delete({
+      where: {
+        id,
+      },
+    });
+
+    if (response) {
+      return {
+        message: "User deleted successfully",
+        success: true,
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const changePassword = async (id: string, formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validateFields = ChangePassSchema.safeParse(rawData);
+
+  if (!validateFields.success) {
+    return {
+      message: validateFields.error.issues,
+      success: false,
+    };
+  }
+
+  const { oldPassword, confirmNewPassword } = validateFields.data;
+
+  const hashPassword = hashSync(confirmNewPassword, 10);
+  try {
+    const user = await prisma.users.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!user) {
+      return {
+        message: "User not found",
+        success: false,
+      };
+    }
+    const isValid = compareSync(oldPassword, user!.password);
+
+    if (!isValid) {
+      return {
+        message: "Current password is incorrect",
+        success: false,
+      };
+    }
+    const response = await prisma.users.update({
+      where: {
+        id,
+      },
+      data: {
+        password: hashPassword,
+      },
+    });
+
+    if (response) {
+      return {
+        message: "Password changed successfully",
+        success: true,
+      };
+    }
+  } catch (error) {
     throw error;
   }
 };

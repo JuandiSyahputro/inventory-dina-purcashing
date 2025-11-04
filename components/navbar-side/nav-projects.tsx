@@ -33,20 +33,7 @@ export function NavProjects({
                 <span>{item.name}</span>
               </Link>
             </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover className={cn(splitPath.includes(item.name.toLowerCase()) && "text-white group-hover:text-white")}>
-                  <MoreHorizontal />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 rounded-lg" side={isMobile ? "bottom" : "right"} align={isMobile ? "end" : "start"}>
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Project</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuAction showOnHover className={cn(splitPath.includes(item.name.toLowerCase()) && "text-white group-hover:text-white")}></SidebarMenuAction>
           </SidebarMenuItem>
         ))}
       </SidebarMenu>

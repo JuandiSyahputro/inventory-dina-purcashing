@@ -71,7 +71,7 @@ const UserUpdateAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes)
 
         form.reset();
         refresh();
-        setOpenDialog({ updatedUser: false });
+        setOpenDialog((prev) => ({ ...prev, updatedUser: false }));
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");
@@ -80,7 +80,7 @@ const UserUpdateAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes)
   };
 
   return (
-    <Dialog open={openDialog} onOpenChange={() => setOpenDialog({ updatedUser: false })}>
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, updatedUser: !prev.updatedUser }))}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <DialogHeader>
