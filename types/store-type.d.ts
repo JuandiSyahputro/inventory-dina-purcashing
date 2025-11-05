@@ -7,6 +7,6 @@ declare global {
       name: string;
       id: string;
     }[];
-    user: User;
+    user?: User;
   }
 }

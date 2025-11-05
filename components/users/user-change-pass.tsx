@@ -1,5 +1,5 @@
 "use client";
-import { changePassword, updateUsers } from "@/actions/users-action";
+import { changePassword } from "@/actions/users-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";

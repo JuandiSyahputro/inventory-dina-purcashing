@@ -1,9 +1,9 @@
 "use client";
-import { deleteUsers, updateUsers } from "@/actions/users-action";
+import { deleteUsers } from "@/actions/users-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { DeletedSchema, EditUserSchema } from "@/schema/users-schema";
+import { DeletedSchema } from "@/schema/users-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";

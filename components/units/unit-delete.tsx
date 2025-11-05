@@ -1,7 +1,5 @@
 "use client";
-import { deleteCategory } from "@/actions/category-actions";
 import { deleteUnit } from "@/actions/unit-actions";
-import { deleteUsers } from "@/actions/users-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";

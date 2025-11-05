@@ -1,8 +1,7 @@
 import { getUnits } from "@/actions/unit-actions";
-import FormActionCategory from "@/components/category/form-action";
 import { DataTable } from "@/components/data-table";
-import { columnUnits } from "./column-units";
 import FormActionUnits from "@/components/units/form-action";
+import { columnUnits } from "./column-units";
 
 const UnitsPage = async () => {
   const dataUnits = await getUnits();

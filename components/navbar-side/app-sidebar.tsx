@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioWaveform, BookOpen, Command, Map, PackageSearch, PieChart, Settings2, Store, UsersRound } from "lucide-react";
+import { AudioWaveform, Command, PackageSearch, Store, UsersRound } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/navbar-side/nav-main";
@@ -8,7 +8,7 @@ import { NavProjects } from "@/components/navbar-side/nav-projects";
 import { NavUser } from "@/components/navbar-side/nav-user";
 import { TeamSwitcher } from "@/components/navbar-side/store-switcher";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
-import { Role, Users } from "@prisma/client";
+import { Role } from "@prisma/client";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   dataStores: {

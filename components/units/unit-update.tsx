@@ -1,5 +1,4 @@
 "use client";
-import { updateCategory } from "@/actions/category-actions";
 import { updateUnit } from "@/actions/unit-actions";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
