@@ -1,0 +1,35 @@
+"use client";
+import CategoryAction from "@/components/category/category-action";
+import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import { ColumnDef } from "@tanstack/react-table";
+import dayjs from "dayjs";
+import "dayjs/locale/id";
+
+export const columnCategory: ColumnDef<CategoryTypes>[] = [
+  {
+    id: "No.",
+    header: "No",
+    cell: ({ row }) => <span>{row.index + 1}.</span>,
+  },
+  {
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Category Name" />,
+  },
+  {
+    accessorKey: "createdAt",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Created Date" />,
+    cell: ({ row }) => <span>{dayjs(row.original.createdAt).format("D MMMM YYYY - HH:mm")}</span>,
+  },
+  {
+    accessorKey: "updatedAt",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Updated Date" />,
+    cell: ({ row }) => <span>{dayjs(row.original.updatedAt).format("D MMMM YYYY - HH:mm")}</span>,
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <CategoryAction category={row.original} />;
+    },
+  },
+];

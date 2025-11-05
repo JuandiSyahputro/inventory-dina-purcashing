@@ -55,8 +55,8 @@ const data = {
           url: "/dashboard/product/categories",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Units of Measure",
+          url: "/dashboard/product/units",
         },
       ],
     },

@@ -1,9 +1,11 @@
 "use client";
-import { deleteUsers, updateUsers } from "@/actions/users-action";
+import { deleteCategory } from "@/actions/category-actions";
+import { deleteUnit } from "@/actions/unit-actions";
+import { deleteUsers } from "@/actions/users-action";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { DeletedSchema, EditUserSchema } from "@/schema/users-schema";
+import { DeletedCategorySchema } from "@/schema/category-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -12,21 +14,21 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const UserDeletedAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
+const UnitDeleted = ({ unit, openDialog, setOpenDialog }: UnitUpdatedTypes) => {
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof DeletedSchema>>({
-    resolver: zodResolver(DeletedSchema),
+  const form = useForm<z.infer<typeof DeletedCategorySchema>>({
+    resolver: zodResolver(DeletedCategorySchema),
     defaultValues: {
-      id: user.id,
+      id: unit.id,
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof DeletedSchema>) => {
+  const onSubmit = async (data: z.infer<typeof DeletedCategorySchema>) => {
     startTransition(async () => {
       try {
-        const result = await deleteUsers(data.id);
+        const result = await deleteUnit(data.id);
         if (!result?.success) {
           if (Array.isArray(result?.message)) {
             // If result.message is an array, you can map over it and create a ReactNode array
@@ -47,7 +49,7 @@ const UserDeletedAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes
           return;
         }
 
-        toast.success("User deleted successfully", {
+        toast.success("Unit deleted successfully", {
           style: {
             color: "var(--color-custom-success)",
           },
@@ -55,7 +57,7 @@ const UserDeletedAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes
 
         form.reset();
         refresh();
-        setOpenDialog((prev) => ({ ...prev, updatedUser: false }));
+        setOpenDialog((prev) => ({ ...prev, deletedUnit: false }));
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");
@@ -64,16 +66,16 @@ const UserDeletedAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes
   };
 
   return (
-    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, deletedUser: !prev.deletedUser }))}>
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, deletedUnit: !prev.deletedUnit }))}>
       <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle className="flex justify-center">
               <TriangleAlert size={80} className="text-yellow-500" />
             </DialogTitle>
-            <DialogDescription>Are you sure you want to delete this user? This action cannot be undone, and all data associated with this user will be permanently deleted.</DialogDescription>
+            <DialogDescription>Are you sure you want to delete this unit? This action cannot be undone, and all data associated with this unit will be permanently deleted.</DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="mt-3">
             <DialogClose asChild>
               <Button disabled={pending} variant="outline" type="button">
                 Cancel
@@ -89,4 +91,4 @@ const UserDeletedAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes
   );
 };
 
-export default memo(UserDeletedAction);
+export default memo(UnitDeleted);

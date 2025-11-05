@@ -14,7 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const UserChangePassAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
+const UserChangePass = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
   const { refresh } = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -177,4 +177,4 @@ const UserChangePassAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTy
   );
 };
 
-export default memo(UserChangePassAction);
+export default memo(UserChangePass);

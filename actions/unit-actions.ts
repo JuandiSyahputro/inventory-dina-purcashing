@@ -1,0 +1,200 @@
+"use server";
+import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
+import { DeletedUnitSchema, UnitSchema } from "@/schema/units-schema";
+import { Prisma } from "@prisma/client";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
+
+export const getUnits = async () => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  try {
+    const categories = await prisma.productUnits.findMany();
+    return categories;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const addUnit = async (formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = UnitSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { name } = validatedFields.data;
+
+  try {
+    const findUnit = await prisma.productUnits.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (findUnit) {
+      return {
+        message: `${name} already exists`,
+        success: false,
+      };
+    }
+
+    const response = await prisma.productUnits.create({
+      data: {
+        name,
+      },
+    });
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const updateUnit = async (id: string, formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = UnitSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { name } = validatedFields.data;
+
+  try {
+    const findUnit = await prisma.productUnits.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!findUnit) {
+      return {
+        message: "Data not found",
+        success: false,
+      };
+    }
+
+    const findUnitName = await prisma.productUnits.findFirst({
+      where: {
+        name,
+      },
+    });
+
+    if (findUnitName) {
+      return {
+        message: `${name} already exists`,
+        success: false,
+      };
+    }
+
+    const response = await prisma.productUnits.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const deleteUnit = async (id: string) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const validatedFields = DeletedUnitSchema.safeParse({ id });
+  if (!validatedFields.success) {
+    return {
+      message: validatedFields.error.issues,
+      success: false,
+    };
+  }
+
+  try {
+    const response = await prisma.productUnits.delete({
+      where: {
+        id,
+      },
+    });
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+};

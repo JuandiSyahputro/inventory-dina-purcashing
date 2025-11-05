@@ -1,9 +1,7 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
-
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import UsersAction from "@/components/users/users-action";
-// import ActionCellUserManagement from "@/components/user-management/action-cell-user-management";
 
 export const columnUser: ColumnDef<UsersTypes>[] = [
   {

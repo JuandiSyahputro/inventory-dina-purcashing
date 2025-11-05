@@ -18,7 +18,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const UserUpdateAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
+const UserUpdate = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
   const { refresh } = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -183,4 +183,4 @@ const UserUpdateAction = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes)
   );
 };
 
-export default memo(UserUpdateAction);
+export default memo(UserUpdate);

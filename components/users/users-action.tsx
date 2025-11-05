@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Pencil, RotateCcwKey, Trash } from "lucide-react";
 import { useState } from "react";
-import UserUpdateAction from "./user-update-action";
-import UserDeletedAction from "./user-delete-action";
-import UserChangePassAction from "./user-change-pass-action";
+import UserUpdate from "./user-update";
+import UserDeleted from "./user-delete";
+import UserChangePass from "./user-change-pass";
 
 const UsersAction = ({ user }: { user: UsersTypes }) => {
   const [openDialog, setOpenDialog] = useState({
@@ -37,9 +37,9 @@ const UsersAction = ({ user }: { user: UsersTypes }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <UserUpdateAction user={user} openDialog={openDialog.updatedUser} setOpenDialog={setOpenDialog} />
-      <UserDeletedAction user={user} openDialog={openDialog.deletedUser} setOpenDialog={setOpenDialog} />
-      <UserChangePassAction user={user} openDialog={openDialog.changePassword} setOpenDialog={setOpenDialog} />
+      <UserUpdate user={user} openDialog={openDialog.updatedUser} setOpenDialog={setOpenDialog} />
+      <UserDeleted user={user} openDialog={openDialog.deletedUser} setOpenDialog={setOpenDialog} />
+      <UserChangePass user={user} openDialog={openDialog.changePassword} setOpenDialog={setOpenDialog} />
     </div>
   );
 };
