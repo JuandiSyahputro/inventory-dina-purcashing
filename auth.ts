@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { compareSync } from "bcrypt-ts";
-import NextAuth from "next-auth";
+import NextAuth, { User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { LoginSchema } from "@/schema/auth-schema";
 import type { Adapter } from "next-auth/adapters";
@@ -32,6 +32,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: {
             OR: [{ email }, { name: email }],
           },
+          include: {
+            store: true,
+          },
         });
 
         if (!user || !user?.password) {
@@ -43,7 +46,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        return user;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          store: user.store?.name,
+        } as User;
       },
     }),
   ],
@@ -75,6 +84,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.store = user.store;
       }
 
       return token;
@@ -82,6 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session({ session, token }) {
       session.user.id = token.sub;
       session.user.role = token.role;
+      session.user.store = token.store;
 
       return session;
     },

@@ -17,7 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-export function TeamSwitcher({ stores }: StoreTypes) {
+export function TeamSwitcher({ stores, user }: StoreTypes) {
   const { isMobile } = useSidebar();
   const { refresh } = useRouter();
   const [selectedStore, setSelectedStore] = useState<string[]>([stores[0]?.name]);
@@ -130,24 +130,43 @@ export function TeamSwitcher({ stores }: StoreTypes) {
     });
   };
 
+  const renderSwitcher = () => {
+    if (user.role === "USER") {
+      return (
+        <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+          <div className="bg-custom-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <Store className="size-4" />
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">Store</span>
+            <span className="truncate text-xs">{user?.store ?? "Leny Skincare"}</span>
+          </div>
+        </SidebarMenuButton>
+      );
+    }
+
+    return (
+      <DropdownMenuTrigger asChild>
+        <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+          <div className="bg-custom-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <Store className="size-4" />
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight">
+            <span className="truncate font-medium">Store</span>
+            <span className="truncate text-xs">Leny Skincare</span>
+          </div>
+          <ChevronsUpDown className="ml-auto" />
+        </SidebarMenuButton>
+      </DropdownMenuTrigger>
+    );
+  };
+
   const onSubmit = openDialog.isEdit ? form.handleSubmit(onSubmitEdit) : form.handleSubmit(onSubmitAdd);
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu open={openDrop} onOpenChange={setOpenDrop}>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
-              <div className="bg-custom-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <Store className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Store</span>
-                <span className="truncate text-xs">Leny Skincare</span>
-              </div>
-              <ChevronsUpDown className="ml-auto" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-
+          {renderSwitcher()}
           <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-66 rounded-lg" align="start" side={isMobile ? "bottom" : "right"} sideOffset={4}>
             <DropdownMenuLabel className="text-muted-foreground text-xs">Store</DropdownMenuLabel>
 

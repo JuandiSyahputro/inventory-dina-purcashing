@@ -1,3 +1,5 @@
+import { Role } from "@prisma/client";
+
 export {};
 declare global {
   interface StoreTypes {
@@ -5,5 +7,6 @@ declare global {
       name: string;
       id: string;
     }[];
+    user: User;
   }
 }
