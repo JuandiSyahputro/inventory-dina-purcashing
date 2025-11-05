@@ -19,7 +19,9 @@ export const RegisterSchema = z
       .string({
         error: (value) => (value.input === "" || value.input === undefined ? "Name is required" : "Invalid name"),
       })
-      .min(5, "Name must be at least 5 characters"),
+      .trim()
+      .min(5, "Name must be at least 5 characters")
+      .refine((val) => !/\s/.test(val), { message: "Name must not contain spaces" }),
     storeId: z
       .string({
         error: (value) => (value.input === "" || value.input === undefined ? "Store is required" : "Invalid store"),
