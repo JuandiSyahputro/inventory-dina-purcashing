@@ -103,3 +103,12 @@ model ProductUnits {
 
   @@map("product_units")
 }
+
+model Vendor {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vendor")
+}

@@ -1,11 +1,12 @@
 "use client";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import UnitAction from "@/components/units/units-action";
+import VendorAction from "@/components/vendor/vendor-action";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 
-export const columnUnits: ColumnDef<UnitTypes>[] = [
+export const columnVendor: ColumnDef<VendorTypes>[] = [
   {
     id: "No.",
     header: "No",
@@ -13,7 +14,7 @@ export const columnUnits: ColumnDef<UnitTypes>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Unit Name" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Vendor Name" />,
   },
   {
     accessorKey: "createdAt",
@@ -29,7 +30,7 @@ export const columnUnits: ColumnDef<UnitTypes>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      return <UnitAction unit={row.original} />;
+      return <VendorAction vendor={row.original} />;
     },
   },
 ];
