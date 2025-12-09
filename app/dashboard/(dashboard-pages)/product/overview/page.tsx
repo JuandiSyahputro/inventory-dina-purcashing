@@ -12,10 +12,11 @@ const ProductPage = async ({ searchParams }: { searchParams: Promise<{ [key: str
   const user = await auth();
   if (!user) redirect("/auth/login");
 
-  const params = (await searchParams)?.store_name;
-  const products = await getProductsItems({ store_name: params });
-
   const isAdmin = user?.user?.role === "SUPERADMIN";
+  const params = (await searchParams)?.store_name;
+  const isParams = isAdmin ? params : user?.user.store;
+  const products = await getProductsItems({ store_name: isParams });
+
   const dataProducts = formatMappingProducts(products as ProductTypes[]);
   const formAction = isAdmin ? <FormActionCategory /> : <FormActionProductUser storeId={user?.user.storeId} />;
 
