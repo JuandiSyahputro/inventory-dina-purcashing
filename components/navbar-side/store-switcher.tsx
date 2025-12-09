@@ -197,7 +197,7 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
           <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-66 rounded-lg" align="start" side={isMobile ? "bottom" : "right"} sideOffset={4}>
             <DropdownMenuLabel className="text-muted-foreground text-xs">Store</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
-              checked={selectedStore!.length === stores.length}
+              checked={selectedStore ? selectedStore.length === stores.length : false}
               classCheckbox={{ className: "bg-foreground text-white left-1 p-3 rounded-sm" }}
               onSelect={(e) => e.preventDefault()}
               onCheckedChange={(checked) => toggleStore("all", checked)}>
@@ -207,7 +207,7 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
               <p className="truncate max-w-[120px]">All</p>
             </DropdownMenuCheckboxItem>
             {stores.map((store, index) => (
-              <DropdownMenuCheckboxItem key={index} checked={selectedStore!.includes(store.name)} onCheckedChange={(checked) => toggleStore(store.name, checked)} onSelect={(e) => e.preventDefault()}>
+              <DropdownMenuCheckboxItem key={index} checked={selectedStore?.includes(store.name) || false} onCheckedChange={(checked) => toggleStore(store.name, checked)} onSelect={(e) => e.preventDefault()}>
                 <div className="flex size-6 items-center justify-center rounded-md border bg-custom-primary text-sidebar-primary-foreground">
                   <Store className="size-3.5 shrink-0" />
                 </div>
