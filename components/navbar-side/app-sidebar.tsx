@@ -3,7 +3,7 @@
 import { NavMain } from "@/components/navbar-side/nav-main";
 import { NavProjects } from "@/components/navbar-side/nav-projects";
 import { NavUser } from "@/components/navbar-side/nav-user";
-import { TeamSwitcher } from "@/components/navbar-side/store-switcher";
+import { StoreSwitcher } from "@/components/navbar-side/store-switcher";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { dataSideBar } from "@/lib/data-dummy";
 
@@ -11,7 +11,7 @@ export function AppSidebar({ dataStores, user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher stores={dataStores} user={user} />
+        <StoreSwitcher stores={dataStores} user={user} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={dataSideBar.navMain} />

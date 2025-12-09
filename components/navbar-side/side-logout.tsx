@@ -1,7 +1,7 @@
 "use server";
 import { signOut } from "@/auth";
 import React from "react";
-import { DropdownMenuItem } from "../ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { LogOut } from "lucide-react";
 
 const SideLogout = () => {

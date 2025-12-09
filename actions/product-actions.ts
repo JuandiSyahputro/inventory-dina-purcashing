@@ -1,30 +1,48 @@
 "use server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { CategorySchema, DeletedCategorySchema } from "@/schema/category-schema";
+import { DeletedProductSchema, ProductUserSchema } from "@/schema/product-schema";
+import { DeletedVendorSchema, VendorSchema } from "@/schema/vendor-schema";
 import { Prisma } from "@prisma/client";
+import dayjs from "dayjs";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
-export const getCategories = async () => {
+export const getProductsItems = async ({ store_name }: { store_name?: string }) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
-
+  console.log(store_name);
   try {
-    const categories = await prisma.productCategories.findMany();
-    return categories;
+    let stores: string[] | undefined;
+
+    if (store_name && store_name.toLowerCase() !== "all") {
+      stores = store_name.split(",").map((s) => s.trim());
+    }
+
+    const items = await prisma.productItems.findMany({
+      where: {
+        store: stores ? { name: { in: stores } } : undefined,
+      },
+      include: {
+        unit: true,
+        store: true,
+        categories: true,
+        vendor: true,
+      },
+    });
+    return items;
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
 
-export const addCategory = async (formData: FormData) => {
+export const addProductItemsUser = async (formData: FormData) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
   const rawData = Object.fromEntries(formData);
-  const validatedFields = CategorySchema.safeParse(rawData);
+  const validatedFields = ProductUserSchema.safeParse(rawData);
 
   if (!validatedFields.success)
     return {
@@ -32,27 +50,25 @@ export const addCategory = async (formData: FormData) => {
       success: false,
     };
 
-  const { name } = validatedFields.data;
+  const { name, stockIn, storeId } = validatedFields.data;
 
   try {
-    const findCategory = await prisma.productCategories.findFirst({
-      where: {
-        name,
-      },
-    });
-
-    if (findCategory) {
-      return {
-        message: `${name} already exists`,
-        success: false,
-      };
-    }
-
-    const response = await prisma.productCategories.create({
+    const response = await prisma.productItems.create({
       data: {
         name,
+        stockIn: Number(stockIn),
+        storeId,
       },
     });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `${name} has been added from ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
 
     if (response) {
       return {
@@ -63,6 +79,7 @@ export const addCategory = async (formData: FormData) => {
     console.log(error);
     if (isRedirectError(error)) throw error;
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.log(error);
       switch (error.code) {
         case "P2002":
           return {
@@ -86,12 +103,12 @@ export const addCategory = async (formData: FormData) => {
   }
 };
 
-export const updateCategory = async (id: string, formData: FormData) => {
+export const updateProductItemUser = async (id: string, formData: FormData) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
   const rawData = Object.fromEntries(formData);
-  const validatedFields = CategorySchema.safeParse(rawData);
+  const validatedFields = ProductUserSchema.safeParse(rawData);
 
   if (!validatedFields.success)
     return {
@@ -99,44 +116,42 @@ export const updateCategory = async (id: string, formData: FormData) => {
       success: false,
     };
 
-  const { name } = validatedFields.data;
+  const { name, stockIn } = validatedFields.data;
 
   try {
-    const findCategory = await prisma.productCategories.findFirst({
+    const findProduct = await prisma.productItems.findFirst({
       where: {
         id,
       },
     });
 
-    if (!findCategory) {
+    if (!findProduct) {
       return {
         message: "Data not found",
         success: false,
       };
     }
 
-    const findCategoryName = await prisma.productCategories.findFirst({
-      where: {
-        name,
-      },
-    });
-
-    if (findCategoryName) {
-      return {
-        message: `${name} already exists`,
-        success: false,
-      };
-    }
-
-    const response = await prisma.productCategories.update({
+    const response = await prisma.productItems.update({
       where: {
         id,
       },
       data: {
         name,
+        stockIn: Number(stockIn),
+        status: 0,
         updatedAt: new Date(),
       },
     });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `${name} has been updated from ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
 
     if (response) {
       return {
@@ -170,11 +185,11 @@ export const updateCategory = async (id: string, formData: FormData) => {
   }
 };
 
-export const deleteCategory = async (id: string) => {
+export const deleteProduct = async (id: string) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
-  const validatedFields = DeletedCategorySchema.safeParse({ id });
+  const validatedFields = DeletedProductSchema.safeParse({ id });
   if (!validatedFields.success) {
     return {
       message: validatedFields.error.issues,
@@ -183,7 +198,7 @@ export const deleteCategory = async (id: string) => {
   }
 
   try {
-    const response = await prisma.productCategories.delete({
+    const response = await prisma.productItems.delete({
       where: {
         id,
       },

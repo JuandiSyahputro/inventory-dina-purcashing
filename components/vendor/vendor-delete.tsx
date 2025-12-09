@@ -3,30 +3,20 @@ import { deleteVendor } from "@/actions/vendor-actions";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
-import { DeletedCategorySchema } from "@/schema/category-schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { memo, useTransition } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
 
 const VendorDeleted = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes) => {
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof DeletedCategorySchema>>({
-    resolver: zodResolver(DeletedCategorySchema),
-    defaultValues: {
-      id: vendor.id,
-    },
-  });
-
-  const onSubmit = async (data: z.infer<typeof DeletedCategorySchema>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     startTransition(async () => {
       try {
-        const result = await deleteVendor(data.id);
+        const result = await deleteVendor(vendor.id);
         if (!result?.success) {
           if (Array.isArray(result?.message)) {
             // If result.message is an array, you can map over it and create a ReactNode array
@@ -53,7 +43,6 @@ const VendorDeleted = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes
           },
         });
 
-        form.reset();
         refresh();
         setOpenDialog((prev) => ({ ...prev, deletedVendor: false }));
       } catch (error) {
@@ -66,7 +55,7 @@ const VendorDeleted = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes
   return (
     <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, deletedVendor: !prev.deletedVendor }))}>
       <DialogContent className="sm:max-w-[425px]" showCloseButton={false}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
+        <form onSubmit={onSubmit}>
           <DialogHeader>
             <DialogTitle className="flex justify-center">
               <TriangleAlert size={80} className="text-yellow-500" />
@@ -79,7 +68,7 @@ const VendorDeleted = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes
                 Cancel
               </Button>
             </DialogClose>
-            <Button disabled={pending} type="submit" className="bg-destructive hover:bg-red-700 cursor-pointer">
+            <Button disabled={pending} type="submit" className="cursor-pointer bg-destructive hover:bg-red-700">
               {pending ? <Spinner /> : "Delete"}
             </Button>
           </DialogFooter>

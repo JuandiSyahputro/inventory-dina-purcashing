@@ -1,0 +1,250 @@
+"use client";
+import { getCategories } from "@/actions/category-actions";
+import { updateProductItemUser } from "@/actions/product-actions";
+import { getUnits } from "@/actions/unit-actions";
+import { getVendors } from "@/actions/vendor-actions";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { CalendarPopup } from "@/components/ui/popup-calendar";
+import { Spinner } from "@/components/ui/spinner";
+import { ProductAdminSchema } from "@/schema/product-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { memo, useEffect, useState, useTransition } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import * as z from "zod";
+
+const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedAdminTypes) => {
+  const { refresh } = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [, setData] = useState({});
+
+  const form = useForm<z.infer<typeof ProductAdminSchema>>({
+    resolver: zodResolver(ProductAdminSchema),
+    defaultValues: {
+      prCode: product.prCode ?? "",
+      productCode: product.productCode ?? "",
+      productSubCode: product.productSubCode ?? "",
+      price: String(product.price) ?? "0",
+      remarks: product.remarks ?? "",
+      name: product.name ?? "",
+      stockIn: String(product.stockIn) ?? "0",
+      stockOut: String(product.stockOut) ?? "0",
+      dateIn: String(product.dateIn) ?? "",
+      dateOut: String(product.dateOut) ?? "",
+      unitId: product.unitId ?? "",
+      vendorId: product.vendorId ?? "",
+      categoryId: product.categoryId ?? "",
+      storeId: product.storeId ?? "",
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof ProductAdminSchema>) => {
+    const formData = new FormData();
+    // formData.append("name", data.name);
+    // formData.append("stockIn", data.stockIn!);
+
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    startTransition(async () => {
+      try {
+        const result = await updateProductItemUser(product.id, formData);
+        if (!result?.success) {
+          if (Array.isArray(result?.message)) {
+            // If result.message is an array, you can map over it and create a ReactNode array
+            const errorMessage = result.message.map((error, index) => <div key={index}>{error.message}</div>);
+            toast.error(errorMessage, {
+              style: {
+                color: "var(--color-destructive)",
+              },
+            });
+          } else {
+            // If result.message is a string, you can directly pass it to toast.error
+            toast.error(result!.message, {
+              style: {
+                color: "var(--color-destructive)",
+              },
+            });
+          }
+          return;
+        }
+
+        toast.success("Product updated successfully", {
+          style: {
+            color: "var(--color-custom-success)",
+          },
+        });
+
+        refresh();
+        setTimeout(() => {
+          setOpenDialog((prev) => ({ ...prev, updatedProduct: false }));
+        }, 500);
+      } catch (error) {
+        console.log(error);
+        toast.error("Something went wrong!");
+      }
+    });
+  };
+
+  const getCategoriesFunc = async () => {
+    try {
+      const dataCategories = await getCategories();
+      setData((prev) => ({ ...prev, categories: dataCategories }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getVendorsFunc = async () => {
+    try {
+      const dataVendors = await getVendors();
+      setData((prev) => ({ ...prev, vendors: dataVendors }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const getUnitsFunc = async () => {
+    try {
+      const dataUnits = await getUnits();
+      setData((prev) => ({ ...prev, units: dataUnits }));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getCategoriesFunc();
+    getVendorsFunc();
+    getUnitsFunc();
+  }, [openDialog]);
+
+  return (
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, approvedProduct: !prev.approvedProduct }))}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Update Product</DialogTitle>
+          <DialogDescription>Update the product here. Click save when you&apos;re done.</DialogDescription>
+        </DialogHeader>
+        <form id="form-approve-admin" className="max-h-[500px] overflow-y-auto" onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup className="py-3">
+            <Controller
+              name="prCode"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="prCode">PR Code</FieldLabel>
+                  <Input aria-invalid={fieldState.invalid} {...field} id="prCode" placeholder="Enter your PR code here..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="productCode"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="pCode">Product Code</FieldLabel>
+                  <Input aria-invalid={fieldState.invalid} {...field} id="pCode" placeholder="Enter your product code here..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="productSubCode"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="subCode">Product Code</FieldLabel>
+                  <Input aria-invalid={fieldState.invalid} {...field} id="subCode" placeholder="Enter your product code here..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="name"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="name">Product Name</FieldLabel>
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="price"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="price">Price</FieldLabel>
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="price" placeholder="Enter your product price here..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="stockIn"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="inStock">In Stock</FieldLabel>
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" placeholder="1,2,3, or etc..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="stockOut"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="outStock">Out Stock</FieldLabel>
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="outStock" placeholder="1,2,3, or etc..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="dateIn"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <CalendarPopup title="Date In" className="w-full" {...field} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="dateOut"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <CalendarPopup title="Date Out" className="w-full" {...field} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </form>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button disabled={pending} variant="outline" type="button">
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button disabled={pending} type="submit" form="form-approve-admin" className="cursor-pointer bg-custom-primary hover:bg-custom-primary-dark">
+            {pending ? <Spinner /> : "Save"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default memo(ProductApproved);

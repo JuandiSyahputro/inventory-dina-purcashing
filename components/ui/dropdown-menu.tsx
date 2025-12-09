@@ -6,6 +6,10 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+interface ChecboxItemProps extends React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem> {
+  classCheckbox?: React.ComponentProps<"span">;
+}
+
 function DropdownMenu({ ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
@@ -61,7 +65,7 @@ function DropdownMenuItem({
   );
 }
 
-function DropdownMenuCheckboxItem({ className, children, checked, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>) {
+function DropdownMenuCheckboxItem({ className, children, checked, classCheckbox, ...props }: ChecboxItemProps) {
   return (
     <DropdownMenuPrimitive.CheckboxItem
       data-slot="dropdown-menu-checkbox-item"
@@ -71,7 +75,7 @@ function DropdownMenuCheckboxItem({ className, children, checked, ...props }: Re
       )}
       checked={checked}
       {...props}>
-      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+      <span className={cn("pointer-events-none absolute left-2 flex size-3.5 items-center justify-center", classCheckbox?.className)}>
         <DropdownMenuPrimitive.ItemIndicator>
           <CheckIcon className="size-4" />
         </DropdownMenuPrimitive.ItemIndicator>

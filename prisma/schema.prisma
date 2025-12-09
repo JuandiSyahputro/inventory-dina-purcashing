@@ -77,38 +77,83 @@ model VerificationToken {
 }
 
 model Store {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  Users     Users[]
+  id           String         @id @default(cuid())
+  name         String
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  Users        Users[]
+  productItems ProductItems[]
 
   @@map("store")
 }
 
+model Vendor {
+  id           String         @id @default(cuid())
+  name         String         @unique
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  productItems ProductItems[]
+
+  @@map("vendor")
+}
+
 model ProductCategories {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String         @id @default(cuid())
+  name         String
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  productItems ProductItems[]
 
   @@map("product_categories")
 }
 
 model ProductUnits {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String         @id @default(cuid())
+  name         String         @unique
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  productItems ProductItems[]
 
   @@map("product_units")
 }
 
-model Vendor {
+model ProductItems {
+  id             String    @id @default(cuid())
+  prCode         String?   @map("pr_code")
+  productCode    String?   @map("product_code")
+  productSubCode String?   @map("product_sub_code")
+  name           String?   @map("name")
+  price          Float?
+  stockIn        Int?      @map("stock_in")
+  stockOut       Int?      @map("stock_out")
+  dateIn         DateTime? @map("date_in")
+  dateOut        DateTime? @map("date_out")
+  remarks        String?
+  status         Int       @default(0)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  storeId        String?   @map("store_id")
+  unitId         String?   @map("unit_id")
+  vendorId       String?   @map("vendor_id")
+  categoryId     String?   @map("category_id")
+
+  store               Store?               @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  unit                ProductUnits?        @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  vendor              Vendor?              @relation(fields: [vendorId], references: [id], onDelete: SetNull)
+  categories          ProductCategories?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  historyProductItems HistoryProductItem[]
+
+  @@map("product_items")
+}
+
+model HistoryProductItem {
   id        String   @id @default(cuid())
-  name      String   @unique
+  remarks   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  productId String   @map("product_id")
 
-  @@map("vendor")
+  product ProductItems? @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("history_product_item")
 }

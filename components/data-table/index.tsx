@@ -4,7 +4,6 @@ import { ColumnDef, ColumnFiltersState, SortingState, flexRender, getCoreRowMode
 import { useState } from "react";
 
 import { DataTablePagination } from "@/components/data-table/pagination-table";
-import { DataTableViewOptions } from "@/components/data-table/view-option";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -41,14 +40,14 @@ export function DataTable<TData, TValue>({ columns, title, data, elements, searc
         <Input placeholder={`Search by ${title}...`} value={(table.getColumn(searchBy)?.getFilterValue() as string) ?? ""} onChange={(event) => table.getColumn(searchBy)?.setFilterValue(event.target.value)} className="max-w-sm" />
         <div className="ml-auto flex items-center gap-3">
           {elements}
-          <DataTableViewOptions table={table} />
+          {/* <DataTableViewOptions table={table} /> */}
         </div>
       </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="space-x-5">
                 {headerGroup.headers.map((header) => {
                   return <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>;
                 })}

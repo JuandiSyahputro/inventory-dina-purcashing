@@ -11,16 +11,19 @@ import { Spinner } from "@/components/ui/spinner";
 import { AddStoreSchema } from "@/schema/store-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown, Plus, SquarePenIcon, Store } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-export function TeamSwitcher({ stores, user }: StoreTypes) {
+export function StoreSwitcher({ stores, user }: StoreTypes) {
   const { isMobile } = useSidebar();
-  const { refresh } = useRouter();
-  const [selectedStore, setSelectedStore] = useState<string[]>([stores[0]?.name]);
+  const { refresh, push } = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [selectedStore, setSelectedStore] = useState<string[]>(stores.map((store) => store.name));
   const [editStore, setEditStore] = useState({ id: "" });
   const [pending, startTransition] = useTransition();
   const [openDrop, setOpenDrop] = useState(false);
@@ -28,6 +31,7 @@ export function TeamSwitcher({ stores, user }: StoreTypes) {
     isOpen: false,
     isEdit: false,
   });
+
   const form = useForm<z.infer<typeof AddStoreSchema>>({
     resolver: zodResolver(AddStoreSchema),
     defaultValues: {
@@ -35,8 +39,18 @@ export function TeamSwitcher({ stores, user }: StoreTypes) {
     },
   });
 
-  const toggleTeam = (storeName: string, checked: boolean) => {
-    setSelectedStore((prev) => (checked ? [...prev, storeName] : prev.filter((name) => name !== storeName)));
+  const toggleStore = (storeName: string, checked: boolean) => {
+    setSelectedStore((prev) => {
+      let updated: string[] = [];
+
+      if (storeName === "all") {
+        updated = checked ? stores.map((store) => store.name) : [];
+      } else {
+        updated = checked ? [...prev, storeName] : prev.filter((name) => name !== storeName);
+      }
+
+      return updated;
+    });
   };
 
   const handleEditStore = ({ e, id, name }: { e: React.MouseEvent<HTMLButtonElement>; id: string; name: string }) => {
@@ -161,6 +175,18 @@ export function TeamSwitcher({ stores, user }: StoreTypes) {
     );
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (selectedStore.length > 0) {
+      params.set("store_name", selectedStore.join(","));
+    } else {
+      params.delete("store_name");
+    }
+
+    push(`${pathname}?${params.toString()}`);
+  }, [selectedStore, searchParams, pathname, push]);
+
   const onSubmit = openDialog.isEdit ? form.handleSubmit(onSubmitEdit) : form.handleSubmit(onSubmitAdd);
   return (
     <SidebarMenu>
@@ -169,9 +195,18 @@ export function TeamSwitcher({ stores, user }: StoreTypes) {
           {renderSwitcher()}
           <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-66 rounded-lg" align="start" side={isMobile ? "bottom" : "right"} sideOffset={4}>
             <DropdownMenuLabel className="text-muted-foreground text-xs">Store</DropdownMenuLabel>
-
+            <DropdownMenuCheckboxItem
+              checked={selectedStore.length === stores.length}
+              classCheckbox={{ className: "bg-foreground text-white left-1 p-3 rounded-sm" }}
+              onSelect={(e) => e.preventDefault()}
+              onCheckedChange={(checked) => toggleStore("all", checked)}>
+              <div className="flex size-6 items-center justify-center rounded-md border bg-custom-primary text-sidebar-primary-foreground">
+                <Store className="size-3.5 shrink-0" />
+              </div>
+              <p className="truncate max-w-[120px]">All</p>
+            </DropdownMenuCheckboxItem>
             {stores.map((store, index) => (
-              <DropdownMenuCheckboxItem key={index} checked={selectedStore.includes(store.name)} onCheckedChange={(checked) => toggleTeam(store.name, checked)} onSelect={(e) => e.preventDefault()}>
+              <DropdownMenuCheckboxItem key={index} checked={selectedStore.includes(store.name)} onCheckedChange={(checked) => toggleStore(store.name, checked)} onSelect={(e) => e.preventDefault()}>
                 <div className="flex size-6 items-center justify-center rounded-md border bg-custom-primary text-sidebar-primary-foreground">
                   <Store className="size-3.5 shrink-0" />
                 </div>

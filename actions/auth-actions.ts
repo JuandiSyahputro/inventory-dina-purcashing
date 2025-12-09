@@ -20,7 +20,6 @@ export const loginCredentials = async (FormData: FormData) => {
   } catch (error) {
     console.log(error);
     if (error instanceof AuthError) {
-      // console.log(error.message);
       switch (error.type) {
         case "CredentialsSignin":
           return {
