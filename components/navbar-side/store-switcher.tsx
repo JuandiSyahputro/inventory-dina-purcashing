@@ -177,15 +177,18 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
 
   useEffect(() => {
     if (!selectedStore) return;
-    const params = new URLSearchParams(searchParams.toString());
 
-    if (selectedStore.length > 0) {
-      params.set("store_name", selectedStore.join(","));
-    } else {
-      params.delete("store_name");
+    if (pathname.startsWith("/dashboard/product/overview")) {
+      const params = new URLSearchParams(searchParams.toString());
+
+      if (selectedStore.length > 0) {
+        params.set("store_name", selectedStore.join(","));
+      } else {
+        params.delete("store_name");
+      }
+
+      replace(`${pathname}?${params.toString()}`);
     }
-
-    replace(`${pathname}?${params.toString()}`);
   }, [selectedStore, searchParams, pathname, replace]);
 
   const onSubmit = openDialog.isEdit ? form.handleSubmit(onSubmitEdit) : form.handleSubmit(onSubmitAdd);
