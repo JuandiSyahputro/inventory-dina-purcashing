@@ -3,7 +3,7 @@
 import { NavMain } from "@/components/navbar-side/nav-main";
 import { NavProjects } from "@/components/navbar-side/nav-projects";
 import { NavUser } from "@/components/navbar-side/nav-user";
-import { StoreSwitcher } from "@/components/navbar-side/store-switcher";
+import StoreSwitcher from "@/components/navbar-side/store-switcher";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { dataSideBar } from "@/lib/data-dummy";
 

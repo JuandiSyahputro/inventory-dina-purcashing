@@ -11,7 +11,7 @@ import { redirect } from "next/navigation";
 export const getProductsItems = async ({ store_name }: { store_name?: string }) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
-  console.log(store_name);
+
   try {
     let stores: string[] | undefined;
 

@@ -12,18 +12,18 @@ import { AddStoreSchema } from "@/schema/store-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDown, Plus, SquarePenIcon, Store } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { memo, useEffect, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-export function StoreSwitcher({ stores, user }: StoreTypes) {
+const StoreSwitcher = ({ stores, user }: StoreTypes) => {
   const { isMobile } = useSidebar();
-  const { refresh, push } = useRouter();
+  const { refresh, replace } = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
-  const [selectedStore, setSelectedStore] = useState<string[]>(stores.map((store) => store.name));
+  const [selectedStore, setSelectedStore] = useState<string[] | undefined>(user.role === "SUPERADMIN" ? stores.map((store) => store.name) : undefined);
   const [editStore, setEditStore] = useState({ id: "" });
   const [pending, startTransition] = useTransition();
   const [openDrop, setOpenDrop] = useState(false);
@@ -46,7 +46,7 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
       if (storeName === "all") {
         updated = checked ? stores.map((store) => store.name) : [];
       } else {
-        updated = checked ? [...prev, storeName] : prev.filter((name) => name !== storeName);
+        updated = checked ? [...prev!, storeName] : prev!.filter((name) => name !== storeName);
       }
 
       return updated;
@@ -61,7 +61,7 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
       isOpen: true,
       isEdit: true,
     });
-
+    console.log("object");
     form.setValue("name", name);
   };
 
@@ -176,6 +176,7 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
   };
 
   useEffect(() => {
+    if (!selectedStore) return;
     const params = new URLSearchParams(searchParams.toString());
 
     if (selectedStore.length > 0) {
@@ -184,8 +185,8 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
       params.delete("store_name");
     }
 
-    push(`${pathname}?${params.toString()}`);
-  }, [selectedStore, searchParams, pathname, push]);
+    replace(`${pathname}?${params.toString()}`);
+  }, [selectedStore, searchParams, pathname, replace]);
 
   const onSubmit = openDialog.isEdit ? form.handleSubmit(onSubmitEdit) : form.handleSubmit(onSubmitAdd);
   return (
@@ -196,7 +197,7 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
           <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-66 rounded-lg" align="start" side={isMobile ? "bottom" : "right"} sideOffset={4}>
             <DropdownMenuLabel className="text-muted-foreground text-xs">Store</DropdownMenuLabel>
             <DropdownMenuCheckboxItem
-              checked={selectedStore.length === stores.length}
+              checked={selectedStore!.length === stores.length}
               classCheckbox={{ className: "bg-foreground text-white left-1 p-3 rounded-sm" }}
               onSelect={(e) => e.preventDefault()}
               onCheckedChange={(checked) => toggleStore("all", checked)}>
@@ -206,7 +207,7 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
               <p className="truncate max-w-[120px]">All</p>
             </DropdownMenuCheckboxItem>
             {stores.map((store, index) => (
-              <DropdownMenuCheckboxItem key={index} checked={selectedStore.includes(store.name)} onCheckedChange={(checked) => toggleStore(store.name, checked)} onSelect={(e) => e.preventDefault()}>
+              <DropdownMenuCheckboxItem key={index} checked={selectedStore!.includes(store.name)} onCheckedChange={(checked) => toggleStore(store.name, checked)} onSelect={(e) => e.preventDefault()}>
                 <div className="flex size-6 items-center justify-center rounded-md border bg-custom-primary text-sidebar-primary-foreground">
                   <Store className="size-3.5 shrink-0" />
                 </div>
@@ -267,4 +268,6 @@ export function StoreSwitcher({ stores, user }: StoreTypes) {
       </SidebarMenuItem>
     </SidebarMenu>
   );
-}
+};
+
+export default memo(StoreSwitcher);
