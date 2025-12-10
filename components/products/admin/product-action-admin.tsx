@@ -2,9 +2,9 @@
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, PackageCheck, Pencil, Trash } from "lucide-react";
-import { useState } from "react";
-import ProductDeletedAdmin from "./product-delete-admin";
+import { Activity, useState } from "react";
 import ProductApproved from "./product-approved";
+import ProductDeletedAdmin from "./product-delete-admin";
 
 const ProductActionAdmin = ({ product }: { product: ProductTypes }) => {
   const [openDialog, setOpenDialog] = useState({
@@ -39,8 +39,12 @@ const ProductActionAdmin = ({ product }: { product: ProductTypes }) => {
         </DropdownMenuContent>
       </DropdownMenu>
       {/* <CategoryUpdate product={product} openDialog={openDialog.updatedProduct} setOpenDialog={setOpenDialog} /> */}
-      <ProductApproved product={product} openDialog={openDialog.approvedProduct} setOpenDialog={setOpenDialog} />
-      <ProductDeletedAdmin product={product} openDialog={openDialog.deletedProduct} setOpenDialog={setOpenDialog} />
+      <Activity mode={openDialog.approvedProduct ? "visible" : "hidden"}>
+        <ProductApproved product={product} openDialog={openDialog.approvedProduct} setOpenDialog={setOpenDialog} />
+      </Activity>
+      <Activity mode={openDialog.deletedProduct ? "visible" : "hidden"}>
+        <ProductDeletedAdmin product={product} openDialog={openDialog.deletedProduct} setOpenDialog={setOpenDialog} />
+      </Activity>
     </div>
   );
 };

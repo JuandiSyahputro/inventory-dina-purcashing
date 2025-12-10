@@ -12,12 +12,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { ProductAdminSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { memo, useEffect, useState, useTransition } from "react";
+import { memo, useEffect, useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
 const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedAdminTypes) => {
+  const prevOpen = useRef(false);
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
   const [, setData] = useState({});
@@ -119,9 +120,15 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
   };
 
   useEffect(() => {
-    getCategoriesFunc();
-    getVendorsFunc();
-    getUnitsFunc();
+    if (!prevOpen.current && openDialog) {
+      const loadData = async () => {
+        await Promise.all([getCategoriesFunc(), getVendorsFunc(), getUnitsFunc()]);
+      };
+
+      loadData();
+    }
+
+    prevOpen.current = openDialog;
   }, [openDialog]);
 
   return (

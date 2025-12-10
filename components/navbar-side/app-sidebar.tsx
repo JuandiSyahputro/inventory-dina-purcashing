@@ -6,8 +6,9 @@ import { NavUser } from "@/components/navbar-side/nav-user";
 import StoreSwitcher from "@/components/navbar-side/store-switcher";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { dataSideBar } from "@/lib/data-dummy";
+import { memo } from "react";
 
-export function AppSidebar({ dataStores, user, ...props }: AppSidebarProps) {
+export const AppSidebar = memo(function ({ dataStores, user, ...props }: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -23,4 +24,6 @@ export function AppSidebar({ dataStores, user, ...props }: AppSidebarProps) {
       <SidebarRail />
     </Sidebar>
   );
-}
+});
+
+AppSidebar.displayName = "AppSidebar";

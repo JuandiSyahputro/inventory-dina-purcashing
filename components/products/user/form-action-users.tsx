@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { ProductUserSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -126,4 +126,4 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
   );
 };
 
-export default FormActionProductUser;
+export default memo(FormActionProductUser);

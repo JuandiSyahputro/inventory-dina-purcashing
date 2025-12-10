@@ -8,7 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 export const formatMappingProducts = (products: ProductTypes[]) => {
   return products.map((product) => ({
     id: product.id || "",
-    prCode: product.prCode || undefined,
+    prCode: product.prCode || null,
     productCode: product.productCode || "",
     productSubCode: product.productSubCode || "",
     name: product.name || "",
@@ -28,6 +28,10 @@ export const formatMappingProducts = (products: ProductTypes[]) => {
     vendorName: product.vendor?.name || "",
     categoryId: product.categoryId || "", // Add this line
     categoryName: product.categories?.name || "",
+    store: null,
+    unit: null,
+    vendor: null,
+    categories: null,
     createdAt: product.createdAt || "",
     updatedAt: product.updatedAt || "",
   }));

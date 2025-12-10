@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { CategorySchema } from "@/schema/category-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { memo, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -109,4 +109,4 @@ const FormActionCategory = () => {
   );
 };
 
-export default FormActionCategory;
+export default memo(FormActionCategory);

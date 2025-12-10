@@ -44,31 +44,6 @@ declare global {
     } | null;
   }
 
-  interface ProductDefinedItem {
-    store: { id: string; name: string; createdAt: Date; updatedAt: Date } | null;
-    vendor: { id: string; name: string; createdAt: Date; updatedAt: Date } | null;
-    unit: { id: string; name: string; createdAt: Date; updatedAt: Date } | null;
-    categories: { id: string; name: string; createdAt: Date; updatedAt: Date } | null;
-    id: string;
-    prCode: string | null;
-    productCode: string | null;
-    productSubCode: string | null;
-    name: string | null;
-    price: number | null;
-    stockIn: number | null;
-    stockOut: number | null;
-    dateIn: Date | null;
-    dateOut: Date | null;
-    remarks: string | null;
-    status: number;
-    createdAt: Date;
-    updatedAt: Date;
-    storeId: string | null;
-    unitId: string | null;
-    vendorId: string | null;
-    categoryId: string | null;
-  }
-
   interface ProductUpdatedTypes {
     product: ProductTypes;
     openDialog: boolean;

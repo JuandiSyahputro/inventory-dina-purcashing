@@ -20,6 +20,7 @@ import * as z from "zod";
 const StoreSwitcher = ({ stores, user }: StoreTypes) => {
   const { isMobile } = useSidebar();
   const { refresh, replace } = useRouter();
+
   const searchParams = useSearchParams();
   const pathname = usePathname();
 
@@ -31,6 +32,8 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
     isOpen: false,
     isEdit: false,
   });
+  const storeNameParam = searchParams.get("store_name") ?? "";
+  const joinedSelected = selectedStore?.join(",") ?? "";
 
   const form = useForm<z.infer<typeof AddStoreSchema>>({
     resolver: zodResolver(AddStoreSchema),
@@ -177,19 +180,20 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
 
   useEffect(() => {
     if (!selectedStore) return;
+    if (joinedSelected === storeNameParam) return;
 
     if (pathname.startsWith("/dashboard/product/overview")) {
       const params = new URLSearchParams(searchParams.toString());
 
       if (selectedStore.length > 0) {
-        params.set("store_name", selectedStore.join(","));
+        params.set("store_name", joinedSelected);
       } else {
         params.delete("store_name");
       }
 
       replace(`${pathname}?${params.toString()}`);
     }
-  }, [selectedStore, searchParams, pathname, replace]);
+  }, [selectedStore, storeNameParam, joinedSelected, pathname, searchParams, replace]);
 
   const onSubmit = openDialog.isEdit ? form.handleSubmit(onSubmitEdit) : form.handleSubmit(onSubmitAdd);
   return (
@@ -273,4 +277,5 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
   );
 };
 
-export default memo(StoreSwitcher);
+const MemoizedStoreSwitcher = memo(StoreSwitcher);
+export default MemoizedStoreSwitcher;

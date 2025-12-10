@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/incompatible-library */
+/* @react-compilation-disabled */
 "use client";
 
 import { ColumnDef, ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";

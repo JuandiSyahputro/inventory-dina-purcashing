@@ -3,27 +3,28 @@ import { auth } from "@/auth";
 import FormActionCategory from "@/components/category/form-action";
 import { DataTable } from "@/components/data-table";
 import FormActionProductUser from "@/components/products/user/form-action-users";
-import { formatMappingProducts } from "@/lib/utils";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { columnProduct } from "./column-product";
 import { columnProductUser } from "./column-product-user";
 
-const ProductPage = async ({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) => {
+const getProductsCached = cache(getProductsItems);
+
+const ProductPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
+  const params = (await searchParams)?.store_name;
   if (!user) redirect("/auth/login");
 
   const isAdmin = user?.user?.role === "SUPERADMIN";
-  const params = (await searchParams)?.store_name;
   const isParams = isAdmin ? params : user?.user.store;
-  const products = await getProductsItems({ store_name: isParams });
 
-  const dataProducts = formatMappingProducts(products as ProductTypes[]);
+  const products = await getProductsCached({ store_name: isParams });
   const formAction = isAdmin ? <FormActionCategory /> : <FormActionProductUser storeId={user?.user.storeId} />;
 
   return (
     <div className="container p-10 mx-auto">
       <h1 className="mb-5 text-3xl font-bold">Product Page</h1>
-      <DataTable columns={isAdmin ? columnProduct : columnProductUser} data={dataProducts as ProductTypes[]} elements={formAction} title="product code" />
+      <DataTable columns={isAdmin ? columnProduct : columnProductUser} data={[...products]} elements={formAction} title="product code" />
     </div>
   );
 };

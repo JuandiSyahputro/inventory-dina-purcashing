@@ -1,8 +1,8 @@
 "use server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { formatMappingProducts } from "@/lib/utils";
 import { DeletedProductSchema, ProductUserSchema } from "@/schema/product-schema";
-import { DeletedVendorSchema, VendorSchema } from "@/schema/vendor-schema";
 import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -30,7 +30,9 @@ export const getProductsItems = async ({ store_name }: { store_name?: string }) 
         vendor: true,
       },
     });
-    return items;
+
+    const formatItems = formatMappingProducts(items as ProductTypes[]);
+    return formatItems;
   } catch (error) {
     console.log(error);
     throw error;
