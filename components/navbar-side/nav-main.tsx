@@ -18,9 +18,9 @@ export function NavMain({ items }: NavMainTypes) {
         {items.map((item) => {
           const hasSubItems = item.items && item.items.length > 0;
 
-          if (!hasSubItems) return <RenderNotCollapse items={item.items} key={item.title} title={item.title} url={item.url} isActive={item.isActive} icon={item.icon} />;
+          if (!hasSubItems) return <RenderNotCollapse items={item.items} key={item.title} title={item.title} url={item.url} isActive={item.isActive} icon={item.icon} roles={[]} />;
 
-          return <RenderCollapse items={item.items} key={item.title} title={item.title} url={item.url} icon={item.icon} isActive={item.isActive} />;
+          return <RenderCollapse items={item.items} key={item.title} title={item.title} url={item.url} icon={item.icon} isActive={item.isActive} roles={[]} />;
         })}
       </SidebarMenu>
     </SidebarGroup>
@@ -36,7 +36,7 @@ const RenderNotCollapse = (item: NavMainTypes["items"][number]) => {
       <SidebarMenuButton
         tooltip={item.title}
         className={cn(
-          "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white active:bg-custom-primary active:text-white!",
+          "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white active:bg-custom-primary active:text-white! [&>svg]:size-5",
           splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary hover:bg-custom-primary-dark/80! text-white!"
         )}>
         {item.icon && <item.icon />}
@@ -49,12 +49,13 @@ const RenderNotCollapse = (item: NavMainTypes["items"][number]) => {
 const RenderCollapse = (item: NavMainTypes["items"][number]) => {
   const pathname = usePathname();
   const splitPath = pathname.split("/");
+  const isOpen = !item.isActive ? splitPath.includes(item.title.toLowerCase()) : item.isActive;
 
   return (
-    <Collapsible key={item.title} asChild defaultOpen={item.isActive} className="group/collapsible">
+    <Collapsible key={item.title} asChild defaultOpen={isOpen} className="group/collapsible">
       <SidebarMenuItem>
         <CollapsibleTrigger asChild className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary hover:bg-custom-primary-dark/80! text-white!")}>
-          <SidebarMenuButton tooltip={item.title}>
+          <SidebarMenuButton tooltip={item.title} className="[&>svg]:size-5">
             {item.icon && <item.icon />}
             <span>{item.title}</span>
             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -64,8 +65,14 @@ const RenderCollapse = (item: NavMainTypes["items"][number]) => {
           <SidebarMenuSub>
             {item.items?.map((subItem) => (
               <SidebarMenuSubItem key={subItem.title}>
-                <SidebarMenuSubButton asChild className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", pathname === subItem.url && "bg-custom-primary text-white hover:bg-custom-primary-dark/80!")}>
+                <SidebarMenuSubButton
+                  asChild
+                  className={cn(
+                    "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white hover:[&>svg]:text-white",
+                    pathname === subItem.url && "bg-custom-primary text-white hover:bg-custom-primary-dark/80! [&>svg]:text-white"
+                  )}>
                   <Link href={subItem.url}>
+                    <subItem.icon size={18} />
                     <span>{subItem.title}</span>
                   </Link>
                 </SidebarMenuSubButton>

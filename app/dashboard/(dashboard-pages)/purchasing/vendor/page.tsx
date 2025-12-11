@@ -8,7 +8,7 @@ const VendorPage = async () => {
 
   return (
     <div className="container mx-auto p-10">
-      <h1 className="mb-5 text-3xl font-bold">Vendor Management Page</h1>
+      <h1 className="mb-5 text-3xl font-bold">Vendor Page</h1>
       <DataTable columns={columnVendor} data={vendors} elements={<FormActionVendor />} title="vendor name" />
     </div>
   );

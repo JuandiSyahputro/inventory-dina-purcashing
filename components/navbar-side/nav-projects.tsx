@@ -21,7 +21,7 @@ export function NavProjects({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Other</SidebarGroupLabel>
+      <SidebarGroupLabel className={cn("hidden", projects.length > 0 && "block")}>Other</SidebarGroupLabel>
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name} className="rounded-md group">

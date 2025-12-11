@@ -17,6 +17,8 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
+const isProductView = ["/dashboard/product/overview", "/dashboard/operations/inbound"];
+
 const StoreSwitcher = ({ stores, user }: StoreTypes) => {
   const { isMobile } = useSidebar();
   const { refresh, replace } = useRouter();
@@ -182,7 +184,7 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
     if (!selectedStore) return;
     if (joinedSelected === storeNameParam) return;
 
-    if (pathname.startsWith("/dashboard/product/overview")) {
+    if (isProductView.some((path) => pathname.includes(path))) {
       const params = new URLSearchParams(searchParams.toString());
 
       if (selectedStore.length > 0) {

@@ -5,8 +5,8 @@ import { DataTable } from "@/components/data-table";
 import FormActionProductUser from "@/components/products/user/form-action-users";
 import { redirect } from "next/navigation";
 import { cache } from "react";
-import { columnProduct } from "./column-product";
-import { columnProductUser } from "./column-product-user";
+import { columnInbound } from "./column-inbound";
+import { columnInboundUser } from "./column-inbound-user";
 
 const getProductsCached = cache(getProductsItems);
 
@@ -18,13 +18,13 @@ const ProductPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
   const isAdmin = user?.user?.role === "SUPERADMIN";
   const isParams = isAdmin ? params : user?.user.store;
 
-  const products = await getProductsCached({ store_name: isParams, status: 1 });
+  const products = await getProductsCached({ store_name: isParams });
   const formAction = isAdmin ? <FormActionCategory /> : <FormActionProductUser storeId={user?.user.storeId} />;
 
   return (
     <div className="container p-10 mx-auto">
-      <h1 className="mb-5 text-3xl font-bold">Product Page</h1>
-      <DataTable columns={isAdmin ? columnProduct : columnProductUser} data={[...products]} elements={formAction} title="product code" />
+      <h1 className="mb-5 text-3xl font-bold">Inbound Product Page</h1>
+      <DataTable columns={isAdmin ? columnInbound : columnInboundUser} data={[...products]} elements={formAction} title="product code" />
     </div>
   );
 };

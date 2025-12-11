@@ -8,12 +8,32 @@ declare global {
     items: {
       title: string;
       url: string;
-      icon?: LucideIcon;
+      icon: LucideIcon;
       isActive?: boolean;
+      roles: Role[];
       items?: {
         title: string;
         url: string;
+        icon: LucideIcon;
+        roles: Role[];
       }[];
+    }[];
+  }
+
+  interface NavFillterTypes {
+    navMain: {
+      title: string;
+      url: string;
+      icon: LucideIcon;
+      isActive: boolean;
+      roles: Role[];
+      items: NavMainTypes["items"];
+    }[];
+    projects: {
+      name: string;
+      url: string;
+      icon: LucideIcon;
+      roles: Role[];
     }[];
   }
 

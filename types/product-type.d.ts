@@ -44,6 +44,13 @@ declare global {
     } | null;
   }
 
+  interface GetProductItemTypes {
+    store_name?: string;
+    status?: number | string;
+    limit?: number | string;
+    page?: number | string;
+  }
+
   interface ProductUpdatedTypes {
     product: ProductTypes;
     openDialog: boolean;

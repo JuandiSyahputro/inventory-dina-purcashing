@@ -8,10 +8,11 @@ import dayjs from "dayjs";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
-export const getProductsItems = async ({ store_name }: { store_name?: string }) => {
+export const getProductsItems = async (props: GetProductItemTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
+  const { store_name, status } = props;
   try {
     let stores: string[] | undefined;
 
@@ -22,6 +23,7 @@ export const getProductsItems = async ({ store_name }: { store_name?: string }) 
     const items = await prisma.productItems.findMany({
       where: {
         store: stores ? { name: { in: stores } } : undefined,
+        status: status ? Number(status) : undefined,
       },
       include: {
         unit: true,

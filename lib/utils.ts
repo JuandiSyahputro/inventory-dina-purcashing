@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -36,3 +37,16 @@ export const formatMappingProducts = (products: ProductTypes[]) => {
     updatedAt: product.updatedAt || "",
   }));
 };
+
+export function filterSidebarByRole(sidebar: NavFillterTypes, role: Role) {
+  return {
+    navMain: sidebar.navMain
+      .filter((item) => item.roles?.includes(role))
+      .map((item) => ({
+        ...item,
+        items: item.items?.filter((sub) => sub.roles?.includes(role)) || [],
+      })),
+
+    projects: sidebar.projects.filter((item) => item.roles?.includes(role)),
+  };
+}
