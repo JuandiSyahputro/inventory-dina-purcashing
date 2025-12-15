@@ -14,8 +14,8 @@ export const getVendors = async (props: FetchDataPropsTypes) => {
 
   try {
     const vendors = await prisma.vendor.findMany({
-      take: Number(limit),
-      skip: Number(offset),
+      ...(limit && { take: Number(limit) }),
+      ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
     return { data: vendors };

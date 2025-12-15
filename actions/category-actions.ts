@@ -13,8 +13,8 @@ export const getCategories = async (props: FetchDataPropsTypes) => {
   const { limit, offset } = props;
   try {
     const categories = await prisma.productCategories.findMany({
-      take: Number(limit),
-      skip: Number(offset),
+      ...(limit && { take: Number(limit) }),
+      ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
 

@@ -26,7 +26,7 @@ const UserUpdate = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
     resolver: zodResolver(EditUserSchema),
     defaultValues: {
       name: user.name ?? "",
-      storeId: user.store_id,
+      storeId: user.store_id ?? "",
       role: user.role ?? "",
       email: user.email ?? "",
     },
@@ -112,7 +112,7 @@ const UserUpdate = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
             <Controller
               name="storeId"
               control={form.control}
-              defaultValue={user.store_id}
+              defaultValue={user?.store_id ?? ""}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="storename">Store Name</FieldLabel>
