@@ -66,7 +66,6 @@ const StoreSwitcher = ({ stores, user }: StoreTypes) => {
       isOpen: true,
       isEdit: true,
     });
-    console.log("object");
     form.setValue("name", name);
   };
 

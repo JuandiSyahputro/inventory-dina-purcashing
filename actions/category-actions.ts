@@ -6,13 +6,21 @@ import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
-export const getCategories = async () => {
+export const getCategories = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
+  const { limit, offset } = props;
   try {
-    const categories = await prisma.productCategories.findMany();
-    return categories;
+    const categories = await prisma.productCategories.findMany({
+      take: Number(limit),
+      skip: Number(offset),
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      data: categories,
+    };
   } catch (error) {
     console.log(error);
     throw error;

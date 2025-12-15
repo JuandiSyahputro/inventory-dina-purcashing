@@ -6,13 +6,19 @@ import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
-export const getVendors = async () => {
+export const getVendors = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
+  const { limit, offset } = props;
+
   try {
-    const vendors = await prisma.vendor.findMany();
-    return vendors;
+    const vendors = await prisma.vendor.findMany({
+      take: Number(limit),
+      skip: Number(offset),
+      orderBy: { createdAt: "desc" },
+    });
+    return { data: vendors };
   } catch (error) {
     console.log(error);
     throw error;

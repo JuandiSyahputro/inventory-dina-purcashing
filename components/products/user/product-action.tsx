@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { Activity, useState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Pencil, Trash } from "lucide-react";
@@ -32,8 +32,12 @@ const ProductAction = ({ product }: { product: ProductTypes }) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      <CategoryUpdate product={product} openDialog={openDialog.updatedProduct} setOpenDialog={setOpenDialog} />
-      <ProductDeleted product={product} openDialog={openDialog.deletedProduct} setOpenDialog={setOpenDialog} />
+      <Activity mode={openDialog.updatedProduct ? "visible" : "hidden"}>
+        <CategoryUpdate product={product} openDialog={openDialog.updatedProduct} setOpenDialog={setOpenDialog} />
+      </Activity>
+      <Activity mode={openDialog.deletedProduct ? "visible" : "hidden"}>
+        <ProductDeleted product={product} openDialog={openDialog.deletedProduct} setOpenDialog={setOpenDialog} />
+      </Activity>
     </div>
   );
 };

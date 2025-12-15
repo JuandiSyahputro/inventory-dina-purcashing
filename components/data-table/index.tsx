@@ -1,31 +1,30 @@
 /* eslint-disable react-hooks/incompatible-library */
-/* @react-compilation-disabled */
 "use client";
 
-import { ColumnDef, ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
+import { ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import { useState } from "react";
 
-import { DataTablePagination } from "@/components/data-table/pagination-table";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  title?: string;
-  elements?: React.ReactNode;
-  searchBy?: string;
-}
-
-export function DataTable<TData, TValue>({ columns, title, data, elements, searchBy = "name" }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements, searchBy = "name" }: DataTableProps<TData, TValue>) {
+  const [data, setData] = useState<TData[]>(dataProps);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [paginateCursor, setPaginateCursor] = useState({
+    limit: 10,
+    offset: 0,
+  });
 
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
+    manualPagination: true,
     state: {
       sorting,
       columnFilters,
@@ -35,6 +34,41 @@ export function DataTable<TData, TValue>({ columns, title, data, elements, searc
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
+  const handleNext = async () => {
+    const res = await fetchData({
+      offset: paginateCursor.offset + paginateCursor.limit,
+      limit: paginateCursor.limit,
+    });
+
+    setData(res.data);
+
+    setPaginateCursor((prev) => ({
+      ...prev,
+      offset: prev.offset + prev.limit,
+    }));
+  };
+
+  const handlePrev = async () => {
+    const res = await fetchData({
+      offset: paginateCursor.offset - paginateCursor.limit,
+      limit: paginateCursor.limit,
+    });
+
+    setData(res.data);
+
+    setPaginateCursor((prev) => ({
+      ...prev,
+      offset: prev.offset - prev.limit,
+    }));
+  };
+
+  const handleChangeLimit = async (limit: number) => {
+    const res = await fetchData({ limit, offset: 0 });
+
+    setData(res.data);
+    setPaginateCursor((prev) => ({ ...prev, limit, offset: 0 }));
+  };
 
   return (
     <>
@@ -76,7 +110,41 @@ export function DataTable<TData, TValue>({ columns, title, data, elements, searc
         </Table>
       </div>
       <div className="flex items-center space-x-2 py-4">
-        <DataTablePagination table={table} />
+        <div className="flex w-full items-center justify-between px-2">
+          <div className="flex items-center space-x-6 lg:space-x-8">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm font-medium">Rows per page</p>
+              <Select
+                value={`${paginateCursor.limit}`}
+                onValueChange={(value) => {
+                  handleChangeLimit(Number(value));
+                }}>
+                <SelectTrigger className="h-8 w-[70px]">
+                  <SelectValue placeholder={paginateCursor.limit} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handlePrev} disabled={!paginateCursor.offset}>
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handleNext} disabled={data.length < paginateCursor.limit}>
+                <span className="sr-only">Go to next page</span>
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

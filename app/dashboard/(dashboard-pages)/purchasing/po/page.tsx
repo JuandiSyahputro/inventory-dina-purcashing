@@ -6,7 +6,16 @@ const PurcahseOrdersPage = async () => {
   return (
     <div className="container mx-auto p-10">
       <h1 className="mb-5 text-3xl font-bold">Purcahse Orders Page</h1>
-      <DataTable columns={columnPo} data={[]} elements={<FormActionVendor />} title="product name" />
+      <DataTable
+        columns={columnPo}
+        dataProps={[]}
+        fetchData={async () => {
+          "use server";
+          return { data: [] };
+        }}
+        elements={<FormActionVendor />}
+        title="product name"
+      />
     </div>
   );
 };

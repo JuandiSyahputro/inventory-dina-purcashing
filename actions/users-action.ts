@@ -58,17 +58,23 @@ export const addUsers = async (FormData: FormData) => {
   }
 };
 
-export const getUsers = async () => {
+export const getUsers = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
+
+  const { limit, offset } = props;
 
   try {
     const users = await prisma.users.findMany({
       include: {
         store: true,
       },
+      take: Number(limit),
+      skip: Number(offset),
+      orderBy: { createdAt: "desc" },
     });
-    return users;
+
+    return { data: users };
   } catch (error) {
     console.log(error);
     throw error;

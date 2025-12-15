@@ -50,3 +50,11 @@ export function filterSidebarByRole(sidebar: NavFillterTypes, role: Role) {
     projects: sidebar.projects.filter((item) => item.roles?.includes(role)),
   };
 }
+
+export const encodeCursor = (createdAt: Date) => Buffer.from(createdAt.toISOString()).toString("base64");
+
+export const decodeCursor = (cursor?: string | null): Date | null => {
+  if (!cursor) return null;
+  const decoded = Buffer.from(cursor, "base64").toString("utf8");
+  return new Date(decoded);
+};

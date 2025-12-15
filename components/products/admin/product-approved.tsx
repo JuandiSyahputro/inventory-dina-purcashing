@@ -94,7 +94,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
   const getCategoriesFunc = async () => {
     try {
-      const dataCategories = await getCategories();
+      const dataCategories = await getCategories({ limit: 10, offset: 0 });
       setData((prev) => ({ ...prev, categories: dataCategories }));
     } catch (error) {
       console.error(error);
@@ -103,7 +103,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
   const getVendorsFunc = async () => {
     try {
-      const dataVendors = await getVendors();
+      const dataVendors = await getVendors({ limit: 10, offset: 0 });
       setData((prev) => ({ ...prev, vendors: dataVendors }));
     } catch (error) {
       console.error(error);
@@ -112,7 +112,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
   const getUnitsFunc = async () => {
     try {
-      const dataUnits = await getUnits();
+      const dataUnits = await getUnits({ limit: 10, offset: 0 });
       setData((prev) => ({ ...prev, units: dataUnits }));
     } catch (error) {
       console.error(error);

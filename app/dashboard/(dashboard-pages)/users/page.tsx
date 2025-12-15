@@ -6,7 +6,7 @@ import { columnUser } from "./column-user";
 
 const UsersPage = async () => {
   const dataStores = (await getStores()) || [];
-  const users = await getUsers();
+  const { data: users } = await getUsers({ limit: 10, offset: 0 });
   const key = dataStores.filter((store) => store.id === dataStores[0].id)[0].id;
   const formatUsers = users.map((user) => ({
     id: user.id,
@@ -18,10 +18,26 @@ const UsersPage = async () => {
     data_stores: { stores: dataStores },
   }));
 
+  const fetchUsers = async ({ limit, offset }: FetchDataPropsTypes) => {
+    "use server";
+    const { data: dataUsers } = await getUsers({ limit, offset });
+    const fetchUsers = dataUsers.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email || "",
+      role: user.role,
+      store_id: user.storeId || "",
+      store_name: user.store?.name || null,
+      data_stores: { stores: dataStores },
+    }));
+
+    return { data: fetchUsers };
+  };
+
   return (
     <div className="container mx-auto p-10">
       <h1 className="mb-5 text-3xl font-bold">Users Management Page</h1>
-      <DataTable columns={columnUser} data={formatUsers} elements={<FormActionUsers key={key} stores={dataStores} />} title="username" />
+      <DataTable columns={columnUser} dataProps={formatUsers} fetchData={fetchUsers} elements={<FormActionUsers key={key} stores={dataStores} />} title="username" />
     </div>
   );
 };

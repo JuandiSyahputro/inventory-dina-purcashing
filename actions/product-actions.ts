@@ -10,33 +10,40 @@ import { redirect } from "next/navigation";
 
 export const getProductsItems = async (props: GetProductItemTypes) => {
   const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
+  if (!session?.user) redirect("/auth/login");
 
-  const { store_name, status } = props;
+  const { store_name, status, limit = 10, offset = 0 } = props;
+  const pageSize = Number(limit);
+  const page = Number(offset);
+
   try {
-    let stores: string[] | undefined;
+    const stores = store_name && store_name.toLowerCase() !== "all" ? store_name.split(",").map((s) => s.trim()) : undefined;
 
-    if (store_name && store_name.toLowerCase() !== "all") {
-      stores = store_name.split(",").map((s) => s.trim());
-    }
+    const whereBase = {
+      ...(status ? { status: Number(status) } : {}),
+      ...(stores ? { store: { name: { in: stores } } } : {}),
+    };
+
+    const where = { ...whereBase };
 
     const items = await prisma.productItems.findMany({
-      where: {
-        store: stores ? { name: { in: stores } } : undefined,
-        status: status ? Number(status) : undefined,
-      },
+      where,
       include: {
         unit: true,
         store: true,
         categories: true,
         vendor: true,
       },
+      orderBy: { createdAt: "desc" },
+      take: pageSize,
+      skip: page,
     });
 
-    const formatItems = formatMappingProducts(items as ProductTypes[]);
-    return formatItems;
+    return {
+      data: formatMappingProducts(items as ProductTypes[]),
+    };
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching product items:", error);
     throw error;
   }
 };

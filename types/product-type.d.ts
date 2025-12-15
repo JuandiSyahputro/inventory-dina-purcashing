@@ -48,7 +48,9 @@ declare global {
     store_name?: string;
     status?: number | string;
     limit?: number | string;
-    page?: number | string;
+    offset?: number | string;
+    cursor?: string | null;
+    direction?: string;
   }
 
   interface ProductUpdatedTypes {

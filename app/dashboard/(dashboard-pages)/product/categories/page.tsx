@@ -4,11 +4,17 @@ import { columnCategory } from "./column-category";
 import { getCategories } from "@/actions/category-actions";
 
 const CategoriesPage = async () => {
-  const dataCategories = await getCategories();
+  const { data: dataCategories } = await getCategories({ limit: 10, offset: 0 });
+
+  const fetchCategories = async ({ limit, offset }: FetchDataPropsTypes) => {
+    "use server";
+    return await getCategories({ limit, offset });
+  };
+
   return (
     <div className="container mx-auto p-10">
       <h1 className="mb-5 text-3xl font-bold">Categories Page</h1>
-      <DataTable columns={columnCategory} data={dataCategories} elements={<FormActionCategory />} title="category name" />
+      <DataTable columns={columnCategory} dataProps={dataCategories} fetchData={fetchCategories} elements={<FormActionCategory />} title="category name" />
     </div>
   );
 };

@@ -3,9 +3,10 @@ declare global {
   interface UsersTypes {
     id: string;
     name: string;
-    email: string;
+    email: string | null;
     role: string;
-    store_id: string;
+    store_id?: string | null;
+    storeId?: string | null;
     store_name?: string | null;
     data_stores?: StoreTypes;
   }
