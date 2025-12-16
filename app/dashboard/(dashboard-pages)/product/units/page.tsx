@@ -6,9 +6,9 @@ import { columnUnits } from "./column-units";
 const UnitsPage = async () => {
   const { data: dataUnits } = await getUnits({ limit: 10, offset: 0 });
 
-  const fetchUnirs = async ({ limit, offset }: FetchDataPropsTypes) => {
+  const fetchUnirs = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    return await getUnits({ limit, offset });
+    return await getUnits({ limit, offset, search });
   };
 
   return (

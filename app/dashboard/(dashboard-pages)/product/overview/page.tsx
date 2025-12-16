@@ -15,12 +15,12 @@ const ProductPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
   const isAdmin = user?.user?.role === "SUPERADMIN";
   const isParams = isAdmin ? params : user?.user.store;
 
-  const products = await getProductsItems({ store_name: isParams, limit: 10, offset: 0, status: 1 });
+  const products = await getProductsItems({ store_name: isParams, queryParams: { limit: 10, offset: 0 }, status: 1 });
   const formAction = isAdmin ? <FormActionCategory /> : <FormActionProductUser storeId={user?.user.storeId} />;
 
-  const fetchProductItems = async ({ limit, offset }: FetchDataPropsTypes) => {
+  const fetchProductItems = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    return await getProductsItems({ store_name: isParams, limit, offset });
+    return await getProductsItems({ store_name: isParams, queryParams: { limit, offset, search }, status: 1 });
   };
 
   return (

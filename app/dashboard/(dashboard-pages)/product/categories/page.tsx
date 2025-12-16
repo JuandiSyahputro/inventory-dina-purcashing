@@ -6,9 +6,9 @@ import { getCategories } from "@/actions/category-actions";
 const CategoriesPage = async () => {
   const { data: dataCategories } = await getCategories({ limit: 10, offset: 0 });
 
-  const fetchCategories = async ({ limit, offset }: FetchDataPropsTypes) => {
+  const fetchCategories = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    return await getCategories({ limit, offset });
+    return await getCategories({ limit, offset, search });
   };
 
   return (

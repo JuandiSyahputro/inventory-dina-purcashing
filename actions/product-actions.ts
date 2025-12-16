@@ -12,16 +12,21 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
   const session = await auth();
   if (!session?.user) redirect("/auth/login");
 
-  const { store_name, status, limit = 10, offset = 0 } = props;
+  const {
+    store_name,
+    status,
+    queryParams: { limit = 10, offset = 0, search },
+  } = props;
   const pageSize = Number(limit);
   const page = Number(offset);
 
   try {
     const stores = store_name && store_name.toLowerCase() !== "all" ? store_name.split(",").map((s) => s.trim()) : undefined;
 
-    const whereBase = {
+    const whereBase: Prisma.ProductItemsWhereInput = {
       ...(status ? { status: Number(status) } : {}),
       ...(stores ? { store: { name: { in: stores } } } : {}),
+      ...(search ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { productCode: { contains: search, mode: "insensitive" } }] } : {}),
     };
 
     const where = { ...whereBase };

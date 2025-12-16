@@ -9,10 +9,24 @@ import { redirect } from "next/navigation";
 export const getUnits = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
-  const { limit, offset } = props;
+  const { limit, offset, search } = props;
+
+  const where: Prisma.ProductUnitsWhereInput = {
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+  };
 
   try {
     const categories = await prisma.productUnits.findMany({
+      where,
       ...(limit && { take: Number(limit) }),
       ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },

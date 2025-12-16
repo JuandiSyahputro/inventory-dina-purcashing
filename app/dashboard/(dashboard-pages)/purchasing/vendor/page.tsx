@@ -6,9 +6,9 @@ import { columnVendor } from "./column-vendor";
 const VendorPage = async () => {
   const { data: vendors } = await getVendors({ limit: 10, offset: 0 });
 
-  const fetchVendors = async ({ limit, offset }: FetchDataPropsTypes) => {
+  const fetchVendors = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    return await getVendors({ limit, offset });
+    return await getVendors({ limit, offset, search });
   };
   return (
     <div className="container mx-auto p-10">

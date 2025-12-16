@@ -18,9 +18,9 @@ const UsersPage = async () => {
     data_stores: { stores: dataStores },
   }));
 
-  const fetchUsers = async ({ limit, offset }: FetchDataPropsTypes) => {
+  const fetchUsers = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    const { data: dataUsers } = await getUsers({ limit, offset });
+    const { data: dataUsers } = await getUsers({ limit, offset, search });
     const fetchUsers = dataUsers.map((user) => ({
       id: user.id,
       name: user.name,
@@ -37,7 +37,7 @@ const UsersPage = async () => {
   return (
     <div className="container mx-auto p-10">
       <h1 className="mb-5 text-3xl font-bold">Users Management Page</h1>
-      <DataTable columns={columnUser} dataProps={formatUsers} fetchData={fetchUsers} elements={<FormActionUsers key={key} stores={dataStores} />} title="username" />
+      <DataTable columns={columnUser} dataProps={formatUsers} fetchData={fetchUsers} elements={<FormActionUsers key={key} stores={dataStores} />} title="username or email" />
     </div>
   );
 };

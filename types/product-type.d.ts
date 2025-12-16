@@ -47,10 +47,7 @@ declare global {
   interface GetProductItemTypes {
     store_name?: string;
     status?: number | string;
-    limit?: number | string;
-    offset?: number | string;
-    cursor?: string | null;
-    direction?: string;
+    queryParams: FetchDataPropsTypes;
   }
 
   interface ProductUpdatedTypes {

@@ -10,10 +10,24 @@ export const getVendors = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
-  const { limit, offset } = props;
+  const { limit, offset, search } = props;
+
+  const where: Prisma.VendorWhereInput = {
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+  };
 
   try {
     const vendors = await prisma.vendor.findMany({
+      where,
       ...(limit && { take: Number(limit) }),
       ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },

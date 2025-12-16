@@ -7,7 +7,6 @@ declare global {
     dataProps: TData[];
     title?: string;
     elements?: React.ReactNode;
-    searchBy?: string;
     fetchData: ({ limit, offset }: FetchDataPropsTypes) => Promise<{
       data: TData[];
     }>;

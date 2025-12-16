@@ -15,11 +15,11 @@ const ProductPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
 
   const isAdmin = user?.user?.role === "SUPERADMIN";
   const isParams = isAdmin ? params : user?.user.store;
-  const { data: products } = await getProductsItems({ store_name: isParams, limit: 10, offset: 0 });
+  const { data: products } = await getProductsItems({ store_name: isParams, queryParams: { limit: 10, offset: 0 } });
 
-  const fetchProductItems = async ({ limit, offset }: FetchDataPropsTypes) => {
+  const fetchProductItems = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    return await getProductsItems({ store_name: isParams, limit, offset });
+    return await getProductsItems({ store_name: isParams, queryParams: { limit, offset, search } });
   };
 
   const formAction = isAdmin ? <FormActionCategory /> : <FormActionProductUser storeId={user?.user.storeId} />;
@@ -28,7 +28,7 @@ const ProductPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
   return (
     <div className="container p-10 mx-auto">
       <h1 className="mb-5 text-3xl font-bold">Inbound Product Page</h1>
-      <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code" />
+      <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
     </div>
   );
 };

@@ -2,18 +2,22 @@
 "use client";
 
 import { ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { useRef } from "react";
+import dayjs from "dayjs";
 
-export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements, searchBy = "name" }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements }: DataTableProps<TData, TValue>) {
+  const prevSearchRef = useRef<string>("");
   const [data, setData] = useState<TData[]>(dataProps);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [searchData, setSearchData] = useState("");
   const [paginateCursor, setPaginateCursor] = useState({
     limit: 10,
     offset: 0,
@@ -70,14 +74,39 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
     setPaginateCursor((prev) => ({ ...prev, limit, offset: 0 }));
   };
 
+  useEffect(() => {
+    const prev = prevSearchRef.current;
+    prevSearchRef.current = searchData;
+
+    const run = async () => {
+      if (prev !== "" && searchData === "") {
+        const { data } = await fetchData({ search: "" });
+        setData(data);
+        return;
+      }
+
+      if (searchData !== "") {
+        const { data } = await fetchData({ search: searchData });
+        setData(data);
+      }
+    };
+
+    run();
+  }, [searchData, fetchData]);
+
+  useEffect(() => {
+    const updateDataState = async () => {
+      setData(dataProps);
+    };
+
+    updateDataState();
+  }, [dataProps]);
+
   return (
     <>
       <div className="flex items-center py-4">
-        <Input placeholder={`Search by ${title}...`} value={(table.getColumn(searchBy)?.getFilterValue() as string) ?? ""} onChange={(event) => table.getColumn(searchBy)?.setFilterValue(event.target.value)} className="max-w-sm" />
-        <div className="ml-auto flex items-center gap-3">
-          {elements}
-          {/* <DataTableViewOptions table={table} /> */}
-        </div>
+        <DebouncedInput value={searchData ?? ""} onChange={(value) => setSearchData(String(value))} className="p-2 font-lg shadow border border-block" placeholder={`Search by ${title}...`} />
+        <div className="ml-auto flex items-center gap-3">{elements}</div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -148,4 +177,31 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
       </div>
     </>
   );
+}
+
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  debounce?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+
+    return () => clearTimeout(timeout);
+  }, [debounce, onChange, value]);
+
+  return <Input {...props} value={value} onChange={(e) => setValue(e.target.value)} className="max-w-sm" />;
 }

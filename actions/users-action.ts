@@ -62,15 +62,35 @@ export const getUsers = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
-  const { limit, offset } = props;
+  const { limit, offset, search } = props;
+
+  const where: Prisma.UsersWhereInput = {
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+  };
 
   try {
     const users = await prisma.users.findMany({
+      where,
       include: {
         store: true,
       },
-      take: Number(limit),
-      skip: Number(offset),
+      ...(limit && { take: Number(limit) }),
+      ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
 
