@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useRef } from "react";
-import dayjs from "dayjs";
 
 export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements }: DataTableProps<TData, TValue>) {
   const prevSearchRef = useRef<string>("");
