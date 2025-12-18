@@ -2,6 +2,7 @@
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import ProductAction from "@/components/products/user/product-action";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -45,7 +46,16 @@ export const columnProductUser: ColumnDef<ProductTypes>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
     cell: ({ row }) => {
       const remarks = row.original.remarks || "-";
-      return <span>{remarks}</span>;
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="block max-w-25 truncate">{remarks}</span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-custom-primary" arrowClassName="bg-custom-primary fill-custom-primary">
+            <p>{remarks}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
     },
   },
   {
@@ -53,8 +63,8 @@ export const columnProductUser: ColumnDef<ProductTypes>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
       return (
-        <Badge variant="outline" className="text-muted-foreground px-2 py-1.5">
-          {row.original.status ? <CircleCheck className="fill-green-500 dark:fill-green-400" /> : <Loader />}
+        <Badge variant="outline" className="text-muted-foreground px-2 py-1.5 [&>svg]:size-4.5">
+          {row.original.status ? <CircleCheck className="text-white fill-green-500 dark:fill-green-400" /> : <Loader />}
           {row.original.status ? "Approved" : "Pending"}
         </Badge>
       );
@@ -62,7 +72,7 @@ export const columnProductUser: ColumnDef<ProductTypes>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Submission Date" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Created Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.createdAt).format("D MMMM YYYY")}</span>,
   },
   {

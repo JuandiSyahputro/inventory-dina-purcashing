@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { ArrowDownCircle, ArrowUpCircle, Boxes, FileText, Handshake, Layers, Package, RefreshCcw, Ruler, ShoppingCart, UsersRound } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Boxes, Handshake, Layers, Package, RefreshCcw, Ruler, UsersRound } from "lucide-react";
 
 export const dataSideBar = {
   navMain: [
@@ -52,25 +52,12 @@ export const dataSideBar = {
       ],
     },
     {
-      title: "Purchasing",
-      url: "#",
-      icon: ShoppingCart,
+      title: "Vendor",
+      url: "/dashboard/purchasing/vendor",
+      icon: Handshake,
       isActive: false,
-      roles: ["SUPERADMIN", "USER"] as Role[],
-      items: [
-        {
-          title: "Orders",
-          url: "/dashboard/purchasing/po",
-          icon: FileText,
-          roles: ["SUPERADMIN", "USER"] as Role[],
-        },
-        {
-          title: "Vendor",
-          url: "/dashboard/purchasing/vendor",
-          icon: Handshake,
-          roles: ["SUPERADMIN"] as Role[],
-        },
-      ],
+      roles: ["SUPERADMIN"] as Role[],
+      items: [],
     },
   ],
   projects: [

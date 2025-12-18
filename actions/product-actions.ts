@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatMappingProducts } from "@/lib/utils";
-import { DeletedProductSchema, ProductUserSchema } from "@/schema/product-schema";
+import { DeletedProductSchema, ProductAdminSchema, ProductUserSchema } from "@/schema/product-schema";
 import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -39,7 +39,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
         categories: true,
         vendor: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
       take: pageSize,
       skip: page,
     });
@@ -66,7 +66,7 @@ export const addProductItemsUser = async (formData: FormData) => {
       success: false,
     };
 
-  const { name, stockIn, storeId } = validatedFields.data;
+  const { name, stockIn, storeId, remarks } = validatedFields.data;
 
   try {
     const response = await prisma.productItems.create({
@@ -74,6 +74,7 @@ export const addProductItemsUser = async (formData: FormData) => {
         name,
         stockIn: Number(stockIn),
         storeId,
+        remarks,
       },
     });
 
@@ -132,7 +133,7 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
       success: false,
     };
 
-  const { name, stockIn } = validatedFields.data;
+  const { name, stockIn, remarks } = validatedFields.data;
 
   try {
     const findProduct = await prisma.productItems.findFirst({
@@ -156,6 +157,7 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
         name,
         stockIn: Number(stockIn),
         status: 0,
+        remarks,
         updatedAt: new Date(),
       },
     });
@@ -165,6 +167,96 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
         data: {
           productId: response.id,
           remarks: `${name} has been updated from ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const updateProductItemAdmin = async (id: string, formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = ProductAdminSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { name, stockIn, unitId, categoryId, vendorId, prCode, productCode, productSubCode, price, remarks } = validatedFields.data;
+
+  try {
+    const findProduct = await prisma.productItems.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!findProduct) {
+      return {
+        message: "Data not found",
+        success: false,
+      };
+    }
+
+    const response = await prisma.productItems.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        stockIn: Number(stockIn),
+        status: 1,
+        unitId,
+        categoryId,
+        vendorId,
+        prCode,
+        productCode,
+        productSubCode,
+        price: Number(price),
+        remarks,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `${name} has been updated from Admin - ${dayjs(new Date()).format("D MMMM YYYY")}`,
         },
       });
     }

@@ -60,4 +60,11 @@ declare global {
     openDialog: boolean;
     setOpenDialog: React.Dispatch<React.SetStateAction<{ approvedProduct: boolean; updatedProduct: boolean; deletedProduct: boolean }>>;
   }
+
+  interface ListDataTypes {
+    categories?: { id: string; name: string }[];
+    units?: { id: string; name: string }[];
+    vendors?: { id: string; name: string }[];
+    stores?: { id: string; name: string }[];
+  }
 }

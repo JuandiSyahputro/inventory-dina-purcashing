@@ -1,16 +1,21 @@
 "use client";
 import { getCategories } from "@/actions/category-actions";
-import { updateProductItemUser } from "@/actions/product-actions";
+import { updateProductItemAdmin } from "@/actions/product-actions";
 import { getUnits } from "@/actions/unit-actions";
 import { getVendors } from "@/actions/vendor-actions";
 import { Button } from "@/components/ui/button";
+import { ComboboxField } from "@/components/ui/combobox-field";
+
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { CalendarPopup } from "@/components/ui/popup-calendar";
+
 import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
+
 import { ProductAdminSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { useRouter } from "next/navigation";
 import { memo, useEffect, useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -21,7 +26,11 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
   const prevOpen = useRef(false);
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
-  const [, setData] = useState({});
+  const [dataList, setDataList] = useState<ListDataTypes>({
+    categories: [],
+    units: [],
+    vendors: [],
+  });
 
   const form = useForm<z.infer<typeof ProductAdminSchema>>({
     resolver: zodResolver(ProductAdminSchema),
@@ -33,9 +42,6 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
       remarks: product.remarks ?? "",
       name: product.name ?? "",
       stockIn: String(product.stockIn) ?? "0",
-      stockOut: String(product.stockOut) ?? "0",
-      dateIn: String(product.dateIn) ?? "",
-      dateOut: String(product.dateOut) ?? "",
       unitId: product.unitId ?? "",
       vendorId: product.vendorId ?? "",
       categoryId: product.categoryId ?? "",
@@ -45,8 +51,6 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
   const onSubmit = async (data: z.infer<typeof ProductAdminSchema>) => {
     const formData = new FormData();
-    // formData.append("name", data.name);
-    // formData.append("stockIn", data.stockIn!);
 
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
@@ -54,7 +58,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
     startTransition(async () => {
       try {
-        const result = await updateProductItemUser(product.id, formData);
+        const result = await updateProductItemAdmin(product.id, formData);
         if (!result?.success) {
           if (Array.isArray(result?.message)) {
             // If result.message is an array, you can map over it and create a ReactNode array
@@ -83,7 +87,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
         refresh();
         setTimeout(() => {
-          setOpenDialog((prev) => ({ ...prev, updatedProduct: false }));
+          setOpenDialog((prev) => ({ ...prev, approvedProduct: !prev.approvedProduct }));
         }, 500);
       } catch (error) {
         console.log(error);
@@ -95,7 +99,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
   const getCategoriesFunc = async () => {
     try {
       const dataCategories = await getCategories({});
-      setData((prev) => ({ ...prev, categories: dataCategories }));
+      setDataList((prev) => ({ ...prev, categories: dataCategories.data }));
     } catch (error) {
       console.error(error);
     }
@@ -104,7 +108,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
   const getVendorsFunc = async () => {
     try {
       const dataVendors = await getVendors({});
-      setData((prev) => ({ ...prev, vendors: dataVendors }));
+      setDataList((prev) => ({ ...prev, vendors: dataVendors.data }));
     } catch (error) {
       console.error(error);
     }
@@ -113,7 +117,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
   const getUnitsFunc = async () => {
     try {
       const dataUnits = await getUnits({});
-      setData((prev) => ({ ...prev, units: dataUnits }));
+      setDataList((prev) => ({ ...prev, units: dataUnits.data }));
     } catch (error) {
       console.error(error);
     }
@@ -167,7 +171,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="subCode">Product Code</FieldLabel>
+                  <FieldLabel htmlFor="subCode">Product Sub Code</FieldLabel>
                   <Input aria-invalid={fieldState.invalid} {...field} id="subCode" placeholder="Enter your product code here..." />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -180,6 +184,39 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
                   <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="categoryId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Category Name</FieldLabel>
+                  <ComboboxField listTypes={dataList?.categories ?? []} value={field.value} setValue={field.onChange} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="unitId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Unit Name</FieldLabel>
+                  <ComboboxField listTypes={dataList?.units ?? []} value={field.value} setValue={field.onChange} />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="vendorId"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel>Vendor Name</FieldLabel>
+                  <ComboboxField listTypes={dataList?.vendors ?? []} value={field.value} setValue={field.onChange} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -207,32 +244,12 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
               )}
             />
             <Controller
-              name="stockOut"
+              name="remarks"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="outStock">Out Stock</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="outStock" placeholder="1,2,3, or etc..." />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <Controller
-              name="dateIn"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <CalendarPopup title="Date In" className="w-full" {...field} />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                </Field>
-              )}
-            />
-            <Controller
-              name="dateOut"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <CalendarPopup title="Date Out" className="w-full" {...field} />
+                  <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

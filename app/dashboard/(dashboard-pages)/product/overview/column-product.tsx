@@ -2,6 +2,7 @@
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import ProductActionAdmin from "@/components/products/admin/product-action-admin";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
@@ -76,7 +77,7 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
     accessorKey: "price",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Price" />,
     cell: ({ row }) => {
-      const price = row.original.price || "-";
+      const price = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(row.original.price || 0);
       return <span>{price}</span>;
     },
   },
@@ -105,27 +106,20 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
     },
   },
   {
-    accessorKey: "dateIn",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Date In" />,
-    cell: ({ row }) => {
-      const dateIn = row.original.dateIn ? dayjs(row.original.dateIn).format("D MMMM YYYY") : "-";
-      return <span>{dateIn}</span>;
-    },
-  },
-  {
-    accessorKey: "dateOut",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Date Out" />,
-    cell: ({ row }) => {
-      const dateOut = row.original.dateOut ? dayjs(row.original.dateOut).format("D MMMM YYYY") : "-";
-      return <span>{dateOut}</span>;
-    },
-  },
-  {
     accessorKey: "remarks",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
     cell: ({ row }) => {
       const remarks = row.original.remarks || "-";
-      return <span>{remarks}</span>;
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="block max-w-25 truncate">{remarks}</span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-custom-primary">
+            <p>{remarks}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
     },
   },
   {
@@ -133,8 +127,8 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
       return (
-        <Badge variant="outline" className="text-muted-foreground px-2 py-1.5">
-          {row.original.status ? <CircleCheck className="fill-green-500 dark:fill-green-400" /> : <Loader />}
+        <Badge variant="outline" className="text-muted-foreground px-2 py-1.5 [&>svg]:size-4.5">
+          {row.original.status ? <CircleCheck size={30} className="text-white fill-green-500 dark:fill-green-400" /> : <Loader />}
           {row.original.status ? "Approved" : "Pending"}
         </Badge>
       );
@@ -142,7 +136,7 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Submission Date" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Created Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.createdAt).format("D MMMM YYYY")}</span>,
   },
   {

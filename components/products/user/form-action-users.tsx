@@ -5,6 +5,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
 import { ProductUserSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,7 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
       name: "",
       stockIn: "",
       storeId,
+      remarks: "",
     },
   });
 
@@ -31,6 +33,7 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
     formData.append("name", data.name);
     formData.append("stockIn", data.stockIn!);
     formData.append("storeId", data.storeId ?? "");
+    formData.append("remarks", data.remarks ?? "");
 
     startTransition(async () => {
       try {
@@ -105,6 +108,17 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">In Stock</FieldLabel>
                   <Input type="number" aria-invalid={fieldState.invalid} {...field} id="name" placeholder="1,2,3, or etc..." />
+                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                </Field>
+              )}
+            />
+            <Controller
+              name="remarks"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
