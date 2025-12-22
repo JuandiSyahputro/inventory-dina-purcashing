@@ -3,7 +3,7 @@ import { addUpdateOutboundItemUser, getProductsItems } from "@/actions/product-a
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ComboboxField } from "@/components/ui/combobox-field";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -20,9 +20,8 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const FormOutboundUser = ({ storeName }: { storeName: string }) => {
+const FormOutboundUpdateUser = ({ product, openDialog, setOpenDialog }: ProductUpdatedTypes) => {
   const { refresh } = useRouter();
-  const [openDialog, setOpenDialog] = useState(false);
   const [pending, startTransition] = useTransition();
   const [pendingUsers, startUsers] = useTransition();
   const [dataList, setDataList] = useState<ProductTypes[]>([]);
@@ -31,9 +30,9 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
   const form = useForm<z.infer<typeof ProductOutSchema>>({
     resolver: zodResolver(ProductOutSchema),
     defaultValues: {
-      id: "",
-      stockOut: "1",
-      remarks: "",
+      id: product.id ?? "",
+      stockOut: String(product.stockOut) ?? "1",
+      remarks: product.remarks ?? "",
     },
   });
 
@@ -78,7 +77,7 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
         form.reset();
         refresh();
         setTimeout(() => {
-          setOpenDialog(false);
+          setOpenDialog((prev) => ({ ...prev, updatedOutProduct: false }));
         }, 500);
       } catch (error) {
         console.log(error);
@@ -88,28 +87,20 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
   };
 
   const fetchDefault = useCallback(async () => {
-    if (!openDialog) return [];
-
-    const { data } = await getProductsItems({
-      store_name: storeName,
-      status: 1,
-      queryParams: { limit: 10, offset: 0 },
-    });
-
-    return data;
-  }, [openDialog, storeName]);
+    return [product];
+  }, [product]);
 
   const fetchSearch = useCallback(
     async (search: string) => {
       const { data } = await getProductsItems({
-        store_name: storeName,
+        store_name: product.storeName,
         status: 1,
         queryParams: { search },
       });
 
       return data;
     },
-    [storeName]
+    [product]
   );
 
   const onSuccess = useCallback((data: ProductTypes[]) => {
@@ -126,12 +117,7 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
   });
 
   return (
-    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-      <DialogTrigger asChild>
-        <Button variant="default" className="h-8 cursor-pointer bg-custom-primary hover:bg-custom-primary-dark">
-          Add New
-        </Button>
-      </DialogTrigger>
+    <Dialog open={openDialog} onOpenChange={(open) => setOpenDialog((prev) => ({ ...prev, updatedOutProduct: open }))}>
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={form.handleSubmit(onSubmit)} className="max-h-[400px] overflow-y-auto">
           <DialogHeader>
@@ -141,11 +127,12 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
           <FieldGroup className="py-3">
             <Controller
               name="id"
+              defaultValue={product.id}
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
-                  <ComboboxField listTypes={dataList ?? []} valueProps={field.value} setValueProps={field.onChange} isLoading={pendingUsers} onValueChange={(v) => setSearchData(String(v))} />
+                  <ComboboxField listTypes={dataList ?? []} valueProps={field.value} setValueProps={field.onChange} isLoading={pendingUsers} onValueChange={(v) => setSearchData(String(v))} isDisabled />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   <MemoizedShowMoreCollapsible valueField={field.value} data={dataList} />
                 </Field>
@@ -259,4 +246,4 @@ function ShowMoreCollapsible({ valueField, data }: { valueField: string; data: P
 
 const MemoizedShowMoreCollapsible = memo(ShowMoreCollapsible);
 
-export default memo(FormOutboundUser);
+export default memo(FormOutboundUpdateUser);

@@ -448,7 +448,7 @@ export const rejectedProductItemAdmin = async (id: string, formData: FormData) =
   }
 };
 
-export const addOutboundItemUser = async (formData: FormData) => {
+export const addUpdateOutboundItemUser = async (formData: FormData) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 

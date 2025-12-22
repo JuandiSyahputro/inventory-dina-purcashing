@@ -1,6 +1,6 @@
 "use client";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
-import ProductAction from "@/components/products/user/product-action-user";
+import ProductActionUser from "@/components/products/user/product-action-user";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -83,9 +83,11 @@ export const columnOutboundUser: ColumnDef<ProductTypes>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
+      const isApproved = row.original.status === 4;
+      const isRejected = row.original.status === 5;
       return (
-        <Activity mode={!row.original.status ? "visible" : "hidden"}>
-          <ProductAction product={row.original} />
+        <Activity mode={isApproved || isRejected ? "hidden" : "visible"}>
+          <ProductActionUser product={row.original} />
         </Activity>
       );
     },

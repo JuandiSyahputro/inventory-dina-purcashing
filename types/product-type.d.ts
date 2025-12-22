@@ -50,10 +50,16 @@ declare global {
     queryParams: FetchDataPropsTypes;
   }
 
+  interface DialogActionUserTypes {
+    updatedProduct: boolean;
+    updatedOutProduct: boolean;
+    deletedProduct: boolean;
+  }
+
   interface ProductUpdatedTypes {
     product: ProductTypes;
     openDialog: boolean;
-    setOpenDialog: React.Dispatch<React.SetStateAction<{ updatedProduct: boolean; deletedProduct: boolean }>>;
+    setOpenDialog: React.Dispatch<React.SetStateAction<DialogActionUserTypes>>;
   }
 
   interface DialogActionPropsTypes {

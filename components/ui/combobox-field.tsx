@@ -6,7 +6,7 @@ import { Check, ChevronsUpDown, CircleChevronRight, Loader } from "lucide-react"
 import { Activity, useEffect, useState } from "react";
 import { Button } from "./button";
 
-const ComboboxField = ({ listTypes, valueProps, setValueProps, debounce = 500, onValueChange, isLoading }: ComboboxFieldProps) => {
+const ComboboxField = ({ listTypes, valueProps, setValueProps, debounce = 500, onValueChange, isLoading, isDisabled }: ComboboxFieldProps) => {
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(valueProps);
   const [search, setSearch] = useState("");
@@ -27,7 +27,7 @@ const ComboboxField = ({ listTypes, valueProps, setValueProps, debounce = 500, o
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild disabled={isDisabled}>
         <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between w-full">
           {internalValue && selectedItem ? (
             <div className="flex items-center gap-2">

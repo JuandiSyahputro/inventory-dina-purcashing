@@ -73,6 +73,12 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
     setPaginateCursor((prev) => ({ ...prev, limit, offset: 0 }));
   };
 
+  useEffect(() => {
+    const updatedDataState = () => setData(dataProps);
+
+    updatedDataState();
+  }, [dataProps]);
+
   useSearchFetch({
     search: searchData,
     startTransition: startTransition,
