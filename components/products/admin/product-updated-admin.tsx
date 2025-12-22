@@ -12,20 +12,28 @@ import { Input } from "@/components/ui/input";
 
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
+import { useSearchFetch } from "@/hooks/use-search-fetch";
 
 import { ProductAdminSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useRouter } from "next/navigation";
-import { memo, useEffect, useRef, useState, useTransition } from "react";
+import { memo, useEffect, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedAdminTypes) => {
-  const prevOpen = useRef(false);
+const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDialog }: ProductUpdatedAdminTypes) => {
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
+  const [pendingCategories, startCategories] = useTransition();
+  const [pendingVendors, startVendors] = useTransition();
+  const [pendingUnits, startUnits] = useTransition();
+  const [dataSearch, setDataSearch] = useState({
+    categories: "",
+    units: "",
+    vendors: "",
+  });
   const [dataList, setDataList] = useState<ListDataTypes>({
     categories: [],
     units: [],
@@ -58,7 +66,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
     startTransition(async () => {
       try {
-        const result = await updateProductItemAdmin(product.id, formData);
+        const result = await updateProductItemAdmin(product.id, type, formData);
         if (!result?.success) {
           if (Array.isArray(result?.message)) {
             // If result.message is an array, you can map over it and create a ReactNode array
@@ -79,7 +87,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
           return;
         }
 
-        toast.success("Product updated successfully", {
+        toast.success(`Product ${type} successfully`, {
           style: {
             color: "var(--color-custom-success)",
           },
@@ -87,7 +95,7 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
 
         refresh();
         setTimeout(() => {
-          setOpenDialog((prev) => ({ ...prev, approvedProduct: !prev.approvedProduct }));
+          setOpenDialog((prev) => ({ ...prev, ...(type === "approved" ? { approvedProduct: false } : { updatedProduct: false }) }));
         }, 500);
       } catch (error) {
         console.log(error);
@@ -96,51 +104,76 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
     });
   };
 
-  const getCategoriesFunc = async () => {
-    try {
-      const dataCategories = await getCategories({});
-      setDataList((prev) => ({ ...prev, categories: dataCategories.data }));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getVendorsFunc = async () => {
-    try {
-      const dataVendors = await getVendors({});
-      setDataList((prev) => ({ ...prev, vendors: dataVendors.data }));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getUnitsFunc = async () => {
-    try {
-      const dataUnits = await getUnits({});
-      setDataList((prev) => ({ ...prev, units: dataUnits.data }));
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   useEffect(() => {
-    if (!prevOpen.current && openDialog) {
-      const loadData = async () => {
-        await Promise.all([getCategoriesFunc(), getVendorsFunc(), getUnitsFunc()]);
-      };
+    if (type !== "updated") return;
 
-      loadData();
-    }
+    form.reset({
+      prCode: product.prCode ?? "",
+      productCode: product.productCode ?? "",
+      productSubCode: product.productSubCode ?? "",
+      price: String(product.price ?? 0),
+      remarks: product.remarks ?? "",
+      name: product.name ?? "",
+      stockIn: String(product.stockIn ?? 0),
+      unitId: product.unitId ?? "",
+      vendorId: product.vendorId ?? "",
+      categoryId: product.categoryId ?? "",
+      storeId: product.storeId ?? "",
+    });
+  }, [product, form, type]);
 
-    prevOpen.current = openDialog;
-  }, [openDialog]);
+  useSearchFetch({
+    search: dataSearch.categories,
+    startTransition: startCategories,
+    fetchDefault: async () => {
+      if (!openDialog) return [];
+      const { data } = await getCategories({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getCategories({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, categories: data })),
+  });
+
+  useSearchFetch({
+    search: dataSearch.vendors,
+    startTransition: startVendors,
+    fetchDefault: async () => {
+      if (!openDialog) return [];
+      const { data } = await getVendors({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getVendors({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, vendors: data })),
+  });
+
+  useSearchFetch({
+    search: dataSearch.units,
+    startTransition: startUnits,
+    fetchDefault: async () => {
+      if (!openDialog) return [];
+
+      const { data } = await getUnits({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getUnits({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, units: data })),
+  });
 
   return (
-    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, approvedProduct: !prev.approvedProduct }))}>
+    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, ...(type === "approved" ? { approvedProduct: false } : { updatedProduct: false }) }))}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Update Product</DialogTitle>
-          <DialogDescription>Update the product here. Click save when you&apos;re done.</DialogDescription>
+          <DialogTitle>{type === "approved" ? "Approve" : "Update"} Product</DialogTitle>
+          <DialogDescription>{type === "approved" ? "Approve" : "Update"} the product here. Click save when you&apos;re done.</DialogDescription>
         </DialogHeader>
         <form id="form-approve-admin" className="max-h-[500px] overflow-y-auto" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup className="py-3">
@@ -194,7 +227,18 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Category Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.categories ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.categories ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingCategories}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        categories: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -205,7 +249,18 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Unit Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.units ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.units ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingUnits}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        units: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -216,7 +271,18 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Vendor Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.vendors ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.vendors ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingVendors}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        vendors: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -271,4 +337,4 @@ const ProductApproved = ({ product, openDialog, setOpenDialog }: ProductUpdatedA
   );
 };
 
-export default memo(ProductApproved);
+export default memo(ProductUpdatedAdmin);

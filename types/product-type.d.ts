@@ -46,7 +46,7 @@ declare global {
 
   interface GetProductItemTypes {
     store_name?: string;
-    status?: number | string;
+    status?: number | string | number[];
     queryParams: FetchDataPropsTypes;
   }
 
@@ -55,10 +55,21 @@ declare global {
     openDialog: boolean;
     setOpenDialog: React.Dispatch<React.SetStateAction<{ updatedProduct: boolean; deletedProduct: boolean }>>;
   }
+
+  interface DialogActionPropsTypes {
+    approvedProduct: boolean;
+    rejectedProduct: boolean;
+    updatedProduct: boolean;
+    approvedOutProduct: boolean;
+    rejectedOutProduct: boolean;
+    deletedProduct: boolean;
+  }
+
   interface ProductUpdatedAdminTypes {
     product: ProductTypes;
+    type?: string;
     openDialog: boolean;
-    setOpenDialog: React.Dispatch<React.SetStateAction<{ approvedProduct: boolean; updatedProduct: boolean; deletedProduct: boolean }>>;
+    setOpenDialog: React.Dispatch<React.SetStateAction<DialogActionPropsTypes>>;
   }
 
   interface ListDataTypes {

@@ -144,18 +144,36 @@ export const updateStore = async (idStore: string, nameStore: string) => {
   }
 };
 
-export const getStores = async () => {
+export const getStores = async (props: FetchDataPropsTypes) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
+  const { limit, offset, search } = props;
+
+  const where: Prisma.StoreWhereInput = {
+    ...(search && {
+      OR: [
+        {
+          name: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ],
+    }),
+  };
+
   try {
     const stores = await prisma.store.findMany({
+      where,
+      ...(limit && { take: Number(limit) }),
+      ...(offset && { skip: Number(offset) }),
       select: {
         id: true,
         name: true,
       },
     });
-    return stores;
+    return { data: stores };
   } catch (error) {
     console.log(error);
     throw error;

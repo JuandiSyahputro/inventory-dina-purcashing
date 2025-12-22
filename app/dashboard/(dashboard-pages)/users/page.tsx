@@ -5,7 +5,7 @@ import FormActionUsers from "@/components/users/form-action";
 import { columnUser } from "./column-user";
 
 const UsersPage = async () => {
-  const dataStores = (await getStores()) || [];
+  const { data: dataStores } = (await getStores({})) || [];
   const { data: users } = await getUsers({ limit: 10, offset: 0 });
   const key = dataStores.filter((store) => store.id === dataStores[0].id)[0].id;
   const formatUsers = users.map((user) => ({

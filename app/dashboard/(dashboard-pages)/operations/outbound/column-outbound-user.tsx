@@ -1,6 +1,6 @@
 "use client";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
-import ProductActionAdmin from "@/components/products/admin/product-action-admin";
+import ProductAction from "@/components/products/user/product-action-user";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -10,30 +10,22 @@ import "dayjs/locale/id";
 import { CircleCheck, Loader } from "lucide-react";
 import { Activity } from "react";
 
-export const columnInbound: ColumnDef<ProductTypes>[] = [
+export const columnOutboundUser: ColumnDef<ProductTypes>[] = [
   {
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
       return (
-        <Badge variant="outline" className={cn("text-foreground px-2 py-1.5 [&>svg]:size-4.5", row.original.status && "text-green-500")}>
-          <Activity mode={!row.original.status ? "visible" : "hidden"}>
+        <Badge variant="outline" className={cn("text-foreground px-2 py-1.5 [&>svg]:size-4.5", row.original.status === 4 && "text-green-500")}>
+          <Activity mode={row.original.status === 3 ? "visible" : "hidden"}>
             <Loader size={30} />
           </Activity>
-          <Activity mode={row.original.status ? "visible" : "hidden"}>
+          <Activity mode={row.original.status === 4 ? "visible" : "hidden"}>
             <CircleCheck size={30} className="text-white fill-green-500 dark:fill-green-400" />
           </Activity>
-          {row.original.status ? "Approved" : "Pending"}
+          {row.original.status === 4 ? "Approved" : "Pending"}
         </Badge>
       );
-    },
-  },
-  {
-    accessorKey: "prCode",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="PR Code" />,
-    cell: ({ row }) => {
-      const prCode = row.original.prCode || "-";
-      return <span>{prCode}</span>;
     },
   },
   {
@@ -55,58 +47,10 @@ export const columnInbound: ColumnDef<ProductTypes>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Name" />,
-    cell: ({ row }) => {
-      const name = row.original.name || "-";
-      return <span>{name}</span>;
-    },
   },
   {
-    accessorKey: "stockIn",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock In" />,
-    cell: ({ row }) => {
-      const stockIn = row.original.stockIn || "-";
-      return <span>{stockIn}</span>;
-    },
-  },
-  {
-    accessorKey: "storeName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Store" />,
-    cell: ({ row }) => {
-      const storeName = row.original.storeName || "-";
-      return <span>{storeName}</span>;
-    },
-  },
-  {
-    accessorKey: "categoryName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Category" />,
-    cell: ({ row }) => {
-      const categoryName = row.original.categoryName || "-";
-      return <span>{categoryName}</span>;
-    },
-  },
-  {
-    accessorKey: "unitName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Unit" />,
-    cell: ({ row }) => {
-      const unitName = row.original.unitName || "-";
-      return <span>{unitName}</span>;
-    },
-  },
-  {
-    accessorKey: "vendorName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Vendor" />,
-    cell: ({ row }) => {
-      const vendorName = row.original.vendorName || "-";
-      return <span>{vendorName}</span>;
-    },
-  },
-  {
-    accessorKey: "price",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Price" />,
-    cell: ({ row }) => {
-      const price = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(row.original.price || 0);
-      return <span>{price}</span>;
-    },
+    accessorKey: "stockOut",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Out Stock" />,
   },
   {
     accessorKey: "remarks",
@@ -139,7 +83,11 @@ export const columnInbound: ColumnDef<ProductTypes>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      return <ProductActionAdmin product={row.original} />;
+      return (
+        <Activity mode={!row.original.status ? "visible" : "hidden"}>
+          <ProductAction product={row.original} />
+        </Activity>
+      );
     },
   },
 ];

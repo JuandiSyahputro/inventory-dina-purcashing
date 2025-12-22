@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import dayjs from "dayjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -15,7 +16,7 @@ export const formatMappingProducts = (products: ProductTypes[]) => {
     name: product.name || "",
     price: product.price || 0,
     stockIn: product.stockIn || 0,
-    stockCurrent: (product.stockIn ?? 0) - (product.stockOut ?? 0),
+    stockCurrent: product.status === 1 || product.status === 4 ? (product.stockIn ?? 0) - (product.stockOut ?? 0) : product.stockIn ?? 0,
     stockOut: product.stockOut || 0,
     dateIn: product.dateIn || undefined,
     dateOut: product.dateOut || undefined,
@@ -58,3 +59,27 @@ export const decodeCursor = (cursor?: string | null): Date | null => {
   const decoded = Buffer.from(cursor, "base64").toString("utf8");
   return new Date(decoded);
 };
+
+export function camelCaseToLabel(key: string) {
+  return key.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/^./, (str) => str.toUpperCase());
+}
+
+export function renderValueKey(value: unknown): string {
+  if (value instanceof Date) {
+    return dayjs(value).format("DD MMM YYYY");
+  }
+
+  if (typeof value === "object" && value !== null) {
+    return JSON.stringify(value);
+  }
+
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  return value as string;
+}
+
+export function filterExcludedKeys<T extends Record<string, unknown>>(obj: T, excluded: (keyof T | string)[]) {
+  return Object.keys(obj).filter((key) => !excluded.includes(key));
+}

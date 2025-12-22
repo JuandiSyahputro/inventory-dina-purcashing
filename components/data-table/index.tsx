@@ -2,21 +2,21 @@
 "use client";
 
 import { ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useRef } from "react";
+import { useSearchFetch } from "@/hooks/use-search-fetch";
 
 export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements }: DataTableProps<TData, TValue>) {
-  const prevSearchRef = useRef<string>("");
   const [data, setData] = useState<TData[]>(dataProps);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchData, setSearchData] = useState("");
+  const [, startTransition] = useTransition();
   const [paginateCursor, setPaginateCursor] = useState({
     limit: 10,
     offset: 0,
@@ -73,33 +73,21 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
     setPaginateCursor((prev) => ({ ...prev, limit, offset: 0 }));
   };
 
-  useEffect(() => {
-    const prev = prevSearchRef.current;
-    prevSearchRef.current = searchData;
+  useSearchFetch({
+    search: searchData,
+    startTransition: startTransition,
+    fetchDefault: async () => {
+      if (!searchData) return dataProps;
 
-    const run = async () => {
-      if (prev !== "" && searchData === "") {
-        const { data } = await fetchData({ search: "" });
-        setData(data);
-        return;
-      }
-
-      if (searchData !== "") {
-        const { data } = await fetchData({ search: searchData });
-        setData(data);
-      }
-    };
-
-    run();
-  }, [searchData, fetchData]);
-
-  useEffect(() => {
-    const updateDataState = async () => {
-      setData(dataProps);
-    };
-
-    updateDataState();
-  }, [dataProps]);
+      const { data } = await fetchData({ search: "" });
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await fetchData({ search });
+      return data;
+    },
+    onSuccess: (data) => setData(data),
+  });
 
   return (
     <>

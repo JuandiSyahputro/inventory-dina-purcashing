@@ -1,45 +1,29 @@
 "use client";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import ProductActionAdmin from "@/components/products/admin/product-action-admin";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
-import { CircleCheck, CircleX, Loader } from "lucide-react";
+import { CircleCheck, Loader } from "lucide-react";
 import { Activity } from "react";
 
-export const columnProduct: ColumnDef<ProductTypes>[] = [
-  {
-    accessorKey: "transaction_type",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Transaction Type" />,
-    cell: ({ row }) => {
-      return <span className="block text-center">{row.original.status < 3 ? "IN" : "OUT"}</span>;
-    },
-  },
+export const columnOutbound: ColumnDef<ProductTypes>[] = [
   {
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
-      const isPending = !row.original.status || row.original.status === 3;
-      const isApproved = row.original.status === 1 || row.original.status === 4;
-      const isRejected = row.original.status === 2 || row.original.status === 5;
-
       return (
-        <Badge variant="outline" className={cn("text-muted-foreground px-2 py-1.5 [&>svg]:size-4.5", isApproved && "text-green-500", isRejected && "text-destructive")}>
-          <Activity mode={isPending ? "visible" : "hidden"}>
+        <Badge variant="outline" className={cn("text-foreground px-2 py-1.5 [&>svg]:size-4.5", row.original.status === 4 && "text-green-500")}>
+          <Activity mode={row.original.status === 3 ? "visible" : "hidden"}>
             <Loader size={30} />
           </Activity>
-          <Activity mode={isApproved ? "visible" : "hidden"}>
+          <Activity mode={row.original.status === 4 ? "visible" : "hidden"}>
             <CircleCheck size={30} className="text-white fill-green-500 dark:fill-green-400" />
           </Activity>
-          <Activity mode={isRejected ? "visible" : "hidden"}>
-            <CircleX size={30} className="text-white fill-destructive dark:fill-destructive" />
-          </Activity>
-
-          {isPending && "Pending"}
-          {isApproved && "Approved"}
-          {isRejected && "Rejected"}
+          {row.original.status === 4 ? "Approved" : "Pending"}
         </Badge>
       );
     },
@@ -74,6 +58,14 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
     cell: ({ row }) => {
       const name = row.original.name || "-";
       return <span>{name}</span>;
+    },
+  },
+  {
+    accessorKey: "stockOut",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock Out" />,
+    cell: ({ row }) => {
+      const stockOut = row.original.stockOut || "-";
+      return <span>{stockOut}</span>;
     },
   },
   {
@@ -117,30 +109,6 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
     },
   },
   {
-    accessorKey: "stockIn",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock In" />,
-    cell: ({ row }) => {
-      const stockIn = row.original.stockIn || "-";
-      return <span>{stockIn}</span>;
-    },
-  },
-  {
-    accessorKey: "stockCurrent",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Current Stock" />,
-    cell: ({ row }) => {
-      const stockCurrent = row.original.stockCurrent || "-";
-      return <span>{stockCurrent}</span>;
-    },
-  },
-  {
-    accessorKey: "stockOut",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Stock Out" />,
-    cell: ({ row }) => {
-      const stockOut = row.original.status === 4 ? row.original.stockOut || "-" : 0;
-      return <span>{stockOut}</span>;
-    },
-  },
-  {
     accessorKey: "remarks",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
     cell: ({ row }) => {
@@ -166,5 +134,12 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Updated Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.updatedAt).format("D MMMM YYYY")}</span>,
+  },
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <ProductActionAdmin product={row.original} />;
+    },
   },
 ];

@@ -2,7 +2,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { formatMappingProducts } from "@/lib/utils";
-import { DeletedProductSchema, ProductAdminSchema, ProductUserSchema } from "@/schema/product-schema";
+import { DeletedProductSchema, ProductAdminSchema, ProductOutSchema, ProductRejectedSchema, ProductUserSchema } from "@/schema/product-schema";
 import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -24,7 +24,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
     const stores = store_name && store_name.toLowerCase() !== "all" ? store_name.split(",").map((s) => s.trim()) : undefined;
 
     const whereBase: Prisma.ProductItemsWhereInput = {
-      ...(status ? { status: Number(status) } : {}),
+      ...(status ? (Array.isArray(status) && status.length > 1 ? { status: { in: status } } : { status: Number(status) }) : {}),
       ...(stores ? { store: { name: { in: stores } } } : {}),
       ...(search ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { productCode: { contains: search, mode: "insensitive" } }] } : {}),
     };
@@ -39,7 +39,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
         categories: true,
         vendor: true,
       },
-      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+      orderBy: [{ createdAt: "desc" }],
       take: pageSize,
       skip: page,
     });
@@ -82,7 +82,81 @@ export const addProductItemsUser = async (formData: FormData) => {
       await prisma.historyProductItem.create({
         data: {
           productId: response.id,
-          remarks: `${name} has been added from ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+          remarks: `${name} has been added by ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.log(error);
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const addProductItemsAdmin = async (formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = ProductAdminSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { name, stockIn, storeId, remarks, categoryId, vendorId, unitId, prCode, productCode, productSubCode, price } = validatedFields.data;
+
+  try {
+    const response = await prisma.productItems.create({
+      data: {
+        name,
+        prCode,
+        productCode,
+        productSubCode,
+        stockIn: Number(stockIn),
+        price: Number(price),
+        categoryId,
+        vendorId,
+        unitId,
+        storeId,
+        remarks,
+      },
+    });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `${name} has been added by Admin - ${dayjs(new Date()).format("D MMMM YYYY")}`,
         },
       });
     }
@@ -166,7 +240,7 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
       await prisma.historyProductItem.create({
         data: {
           productId: response.id,
-          remarks: `${name} has been updated from ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+          remarks: `Product ${name} has been updated by ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
         },
       });
     }
@@ -203,7 +277,7 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
   }
 };
 
-export const updateProductItemAdmin = async (id: string, formData: FormData) => {
+export const updateProductItemAdmin = async (id: string, typeAction: string, formData: FormData) => {
   const session = await auth();
   if (!session || !session.user) redirect("/auth/login");
 
@@ -256,7 +330,251 @@ export const updateProductItemAdmin = async (id: string, formData: FormData) => 
       await prisma.historyProductItem.create({
         data: {
           productId: response.id,
-          remarks: `${name} has been updated from Admin - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+          remarks: `Product ${name} has been ${typeAction} by Admin - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const rejectedProductItemAdmin = async (id: string, formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = ProductRejectedSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { remarks, name } = validatedFields.data;
+
+  try {
+    const findProduct = await prisma.productItems.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!findProduct) {
+      return {
+        message: "Data not found",
+        success: false,
+      };
+    }
+
+    const response = await prisma.productItems.update({
+      where: {
+        id,
+      },
+      data: {
+        status: 2,
+        remarks,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `Product ${name} has been rejected by Admin - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const addOutboundItemUser = async (formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = ProductOutSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { id, stockOut, remarks } = validatedFields.data;
+
+  try {
+    const findProduct = await prisma.productItems.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!findProduct) {
+      return {
+        message: "Data not found",
+        success: false,
+      };
+    }
+
+    const response = await prisma.productItems.update({
+      where: {
+        id,
+      },
+      data: {
+        stockOut: Number(stockOut),
+        status: 3,
+        remarks,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `Product ${findProduct.name} was moved to outbound by ${session.user.store} - ${dayjs(new Date()).format("D MMMM YYYY")}`,
+        },
+      });
+    }
+
+    if (response) {
+      return {
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error);
+    if (isRedirectError(error)) throw error;
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case "P2002":
+          return {
+            message: `${name} already exists`,
+            success: false,
+          };
+        case "P2025":
+          return {
+            message: "Data not found",
+            success: false,
+          };
+
+        default:
+          return {
+            message: "Something went wrong",
+            success: false,
+          };
+      }
+    }
+    throw error;
+  }
+};
+
+export const approveRejectedOutboundProductItemAdmin = async (id: string, type: string, formData: FormData) => {
+  const session = await auth();
+  if (!session || !session.user) redirect("/auth/login");
+
+  const rawData = Object.fromEntries(formData);
+  const validatedFields = ProductRejectedSchema.safeParse(rawData);
+
+  if (!validatedFields.success)
+    return {
+      message: validatedFields.error!.issues,
+      success: false,
+    };
+
+  const { remarks, name } = validatedFields.data;
+
+  try {
+    const findProduct = await prisma.productItems.findFirst({
+      where: {
+        id,
+      },
+    });
+
+    if (!findProduct) {
+      return {
+        message: "Data not found",
+        success: false,
+      };
+    }
+
+    const response = await prisma.productItems.update({
+      where: {
+        id,
+      },
+      data: {
+        status: type == "approvedOut" ? 4 : 5,
+        remarks,
+        updatedAt: new Date(),
+      },
+    });
+
+    if (response.id) {
+      await prisma.historyProductItem.create({
+        data: {
+          productId: response.id,
+          remarks: `Outbound Product ${name} has been ${type == "approvedOut" ? "approved" : "rejected"} by Admin - ${dayjs(new Date()).format("D MMMM YYYY")}`,
         },
       });
     }

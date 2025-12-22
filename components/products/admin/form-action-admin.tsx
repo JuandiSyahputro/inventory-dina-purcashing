@@ -1,6 +1,6 @@
 "use client";
 import { getCategories } from "@/actions/category-actions";
-import { addProductItemsUser } from "@/actions/product-actions";
+import { addProductItemsAdmin } from "@/actions/product-actions";
 import { getStores } from "@/actions/store-action";
 import { getUnits } from "@/actions/unit-actions";
 import { getVendors } from "@/actions/vendor-actions";
@@ -11,7 +11,8 @@ import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import { ProductAdminSchema, ProductUserSchema } from "@/schema/product-schema";
+import { useSearchFetch } from "@/hooks/use-search-fetch";
+import { ProductAdminSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
@@ -24,6 +25,16 @@ const FormActionProductAdmin = () => {
   const { refresh } = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [pendingStores, startStores] = useTransition();
+  const [pendingCategories, startCategories] = useTransition();
+  const [pendingVendors, startVendors] = useTransition();
+  const [pendingUnits, startUnits] = useTransition();
+  const [dataSearch, setDataSearch] = useState({
+    categories: "",
+    units: "",
+    vendors: "",
+    stores: "",
+  });
   const [dataList, setDataList] = useState<ListDataTypes>({
     categories: [],
     units: [],
@@ -48,15 +59,16 @@ const FormActionProductAdmin = () => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof ProductUserSchema>) => {
+  const onSubmit = async (data: z.infer<typeof ProductAdminSchema>) => {
     const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("stockIn", data.stockIn!);
-    formData.append("storeId", data.storeId ?? "");
+
+    Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
 
     startTransition(async () => {
       try {
-        const result = await addProductItemsUser(formData);
+        const result = await addProductItemsAdmin(formData);
         if (!result?.success) {
           if (Array.isArray(result?.message)) {
             // If result.message is an array, you can map over it and create a ReactNode array
@@ -97,16 +109,16 @@ const FormActionProductAdmin = () => {
 
   const getStoresFunc = async () => {
     try {
-      const dataStores = await getStores();
-      setDataList((prev) => ({ ...prev, stores: dataStores }));
+      const { data } = await getStores({ limit: 10, offset: 0 });
+      setDataList((prev) => ({ ...prev, stores: data }));
     } catch (error) {
       console.error(error);
     }
   };
 
-  const getCategoriesFunc = async () => {
+  const getCategoriesFunc = async ({ search = "" }: { search?: string }) => {
     try {
-      const dataCategories = await getCategories({});
+      const dataCategories = await getCategories({ search });
       setDataList((prev) => ({ ...prev, categories: dataCategories.data }));
     } catch (error) {
       console.error(error);
@@ -134,7 +146,7 @@ const FormActionProductAdmin = () => {
   useEffect(() => {
     if (!prevOpen.current && openDialog) {
       const loadData = async () => {
-        await Promise.all([getCategoriesFunc(), getVendorsFunc(), getUnitsFunc(), getStoresFunc()]);
+        await Promise.all([getCategoriesFunc({}), getVendorsFunc(), getUnitsFunc(), getStoresFunc()]);
       };
 
       loadData();
@@ -143,6 +155,67 @@ const FormActionProductAdmin = () => {
     prevOpen.current = openDialog;
   }, [openDialog]);
 
+  useSearchFetch({
+    search: dataSearch.stores,
+    startTransition: startStores,
+    fetchDefault: async () => {
+      if (!dataSearch.stores) return [];
+
+      const { data } = await getStores({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getStores({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, stores: data })),
+  });
+
+  useSearchFetch({
+    search: dataSearch.categories,
+    startTransition: startCategories,
+    fetchDefault: async () => {
+      if (!dataSearch.categories) return [];
+      const { data } = await getCategories({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getCategories({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, categories: data })),
+  });
+
+  useSearchFetch({
+    search: dataSearch.vendors,
+    startTransition: startVendors,
+    fetchDefault: async () => {
+      if (!dataSearch.vendors) return [];
+      const { data } = await getVendors({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getVendors({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, vendors: data })),
+  });
+
+  useSearchFetch({
+    search: dataSearch.units,
+    startTransition: startUnits,
+    fetchDefault: async () => {
+      if (!dataSearch.units) return [];
+
+      const { data } = await getUnits({});
+      return data;
+    },
+    fetchSearch: async (search) => {
+      const { data } = await getUnits({ search });
+      return data;
+    },
+    onSuccess: (data) => setDataList((p) => ({ ...p, units: data })),
+  });
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>
@@ -207,7 +280,18 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Store Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.stores ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.stores ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingStores}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        stores: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -218,7 +302,18 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Category Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.categories ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.categories ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingCategories}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        categories: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -229,7 +324,18 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Unit Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.units ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.units ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingUnits}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        units: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -240,7 +346,18 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Vendor Name</FieldLabel>
-                  <ComboboxField listTypes={dataList?.vendors ?? []} value={field.value} setValue={field.onChange} />
+                  <ComboboxField
+                    listTypes={dataList?.vendors ?? []}
+                    valueProps={field.value}
+                    setValueProps={field.onChange}
+                    isLoading={pendingVendors}
+                    onValueChange={(v) =>
+                      setDataSearch((p) => ({
+                        ...p,
+                        vendors: String(v),
+                      }))
+                    }
+                  />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { memo, useTransition } from "react";
 import { toast } from "sonner";
 
-const ProductDeleted = ({ product, openDialog, setOpenDialog }: ProductUpdatedTypes) => {
+const ProductDeletedUser = ({ product, openDialog, setOpenDialog }: ProductUpdatedTypes) => {
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -80,4 +80,4 @@ const ProductDeleted = ({ product, openDialog, setOpenDialog }: ProductUpdatedTy
   );
 };
 
-export default memo(ProductDeleted);
+export default memo(ProductDeletedUser);

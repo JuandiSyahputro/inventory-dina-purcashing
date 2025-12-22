@@ -14,7 +14,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const ProductUpdate = ({ product, openDialog, setOpenDialog }: ProductUpdatedTypes) => {
+const ProductUpdateUser = ({ product, openDialog, setOpenDialog }: ProductUpdatedTypes) => {
   const { refresh } = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -132,4 +132,4 @@ const ProductUpdate = ({ product, openDialog, setOpenDialog }: ProductUpdatedTyp
   );
 };
 
-export default memo(ProductUpdate);
+export default memo(ProductUpdateUser);

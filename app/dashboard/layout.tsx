@@ -7,7 +7,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { Role } from "@prisma/client";
 
 export default async function LayoutDashboard({ children }: Readonly<{ children: React.ReactNode }>) {
-  const dataStores = (await getStores()) || [];
+  const { data: dataStores } = (await getStores({})) || [];
   const user = await auth();
 
   return (

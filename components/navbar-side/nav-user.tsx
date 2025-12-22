@@ -31,7 +31,7 @@ export function NavUser({
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 {user.name && <span className="truncate font-medium">{user.name}</span>}
-                {user.email && <span className="truncate text-xs">{user.email}</span>}
+                {user.email && <span className="truncate text-xs">{user.email ?? "-"}</span>}
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>

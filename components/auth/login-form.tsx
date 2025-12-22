@@ -113,8 +113,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"form">)
                   autoComplete="new-password"
                   className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white"
                 />
-                <Button tabIndex={-1} className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer" onClick={() => setShowPassword(!showPassword)} type="button">
-                  {!showPassword ? <EyeOff className="text-foreground" size={15} /> : <EyeIcon className="text-foreground" size={15} />}
+                <Button tabIndex={-1} className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer [&>svg]:max-lg:text-white" onClick={() => setShowPassword(!showPassword)} type="button">
+                  {!showPassword ? <EyeOff className="max-md:text-white text-foreground" size={15} /> : <EyeIcon className="max-md:text-white text-foreground" size={15} />}
                 </Button>
               </div>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

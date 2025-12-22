@@ -1,14 +1,33 @@
 "use client";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
-import ProductAction from "@/components/products/user/product-action";
+import ProductAction from "@/components/products/user/product-action-user";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import "dayjs/locale/id";
 import { CircleCheck, Loader } from "lucide-react";
+import { Activity } from "react";
 
 export const columnInboundUser: ColumnDef<ProductTypes>[] = [
+  {
+    accessorKey: "status",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+    cell: ({ row }) => {
+      return (
+        <Badge variant="outline" className={cn("text-foreground px-2 py-1.5 [&>svg]:size-4.5", row.original.status && "text-green-500")}>
+          <Activity mode={!row.original.status ? "visible" : "hidden"}>
+            <Loader size={30} />
+          </Activity>
+          <Activity mode={row.original.status ? "visible" : "hidden"}>
+            <CircleCheck size={30} className="text-white fill-green-500 dark:fill-green-400" />
+          </Activity>
+          {row.original.status ? "Approved" : "Pending"}
+        </Badge>
+      );
+    },
+  },
   {
     accessorKey: "productCode",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Code" />,
@@ -34,14 +53,6 @@ export const columnInboundUser: ColumnDef<ProductTypes>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="In Stock" />,
   },
   {
-    accessorKey: "stockCurrent",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Current Stock" />,
-  },
-  {
-    accessorKey: "stockOut",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Out Stock" />,
-  },
-  {
     accessorKey: "remarks",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
     cell: ({ row }) => {
@@ -59,20 +70,8 @@ export const columnInboundUser: ColumnDef<ProductTypes>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
-    cell: ({ row }) => {
-      return (
-        <Badge variant="outline" className="text-muted-foreground px-2 py-1.5 [&>svg]:size-4.5">
-          {row.original.status ? <CircleCheck className="text-white fill-green-500 dark:fill-green-400" /> : <Loader />}
-          {row.original.status ? "Approved" : "Pending"}
-        </Badge>
-      );
-    },
-  },
-  {
     accessorKey: "createdAt",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Submission Date" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Created Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.createdAt).format("D MMMM YYYY")}</span>,
   },
   {
@@ -84,7 +83,11 @@ export const columnInboundUser: ColumnDef<ProductTypes>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      return <ProductAction product={row.original} />;
+      return (
+        <Activity mode={!row.original.status ? "visible" : "hidden"}>
+          <ProductAction product={row.original} />
+        </Activity>
+      );
     },
   },
 ];
