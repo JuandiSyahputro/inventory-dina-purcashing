@@ -17,7 +17,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
-const isProductView = ["/dashboard/product/overview", "/dashboard/operations/inbound", "/dashboard/operations/rejected"];
+const isProductView = ["/dashboard/product/overview", "/dashboard/operations/inbound", "/dashboard/operations/outbound", "/dashboard/operations/rejected"];
 
 const StoreSwitcher = ({ stores, user }: StoreTypes) => {
   const { isMobile } = useSidebar();
