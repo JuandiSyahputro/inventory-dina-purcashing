@@ -6,7 +6,7 @@ import { Activity, useState } from "react";
 import ProductDeletedAdmin from "./product-delete-admin";
 import ProductRejectedAdmin from "./product-reject-admin";
 import ProductUpdatedAdmin from "./product-updated-admin";
-import ProductApproveRejectOutAdmin from "./product-approve-reject-admin";
+import ProductApproveRejectOutAdmin from "./product-approve-reject-out-admin";
 
 const ProductActionAdmin = ({ product }: { product: ProductTypes }) => {
   const [openDialog, setOpenDialog] = useState({

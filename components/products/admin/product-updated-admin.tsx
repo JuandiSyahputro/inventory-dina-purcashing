@@ -105,7 +105,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
   };
 
   useEffect(() => {
-    if (type !== "updated") return;
+    if (!openDialog) return;
 
     form.reset({
       prCode: product.prCode ?? "",
@@ -120,7 +120,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
       categoryId: product.categoryId ?? "",
       storeId: product.storeId ?? "",
     });
-  }, [product, form, type]);
+  }, [product, form, openDialog]);
 
   useSearchFetch({
     search: dataSearch.categories,

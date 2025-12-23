@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { VendorSchema } from "@/schema/vendor-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { memo, useTransition } from "react";
+import { memo, useEffect, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -67,6 +67,13 @@ const VendorUpdate = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes)
       }
     });
   };
+
+  useEffect(() => {
+    if (!openDialog) return;
+    form.reset({
+      name: vendor.name,
+    });
+  }, [vendor, form, openDialog]);
 
   return (
     <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, updatedVendor: !prev.updatedVendor }))}>

@@ -12,7 +12,7 @@ import { ProductRejectedSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useRouter } from "next/navigation";
-import { memo, useTransition } from "react";
+import { memo, useEffect, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -74,6 +74,14 @@ const ProductRejectedAdmin = ({ product, openDialog, setOpenDialog }: ProductUpd
       }
     });
   };
+
+  useEffect(() => {
+    if (!openDialog) return;
+    form.reset({
+      remarks: product.remarks ?? "",
+      name: product.name ?? "",
+    });
+  }, [product, openDialog, form]);
 
   return (
     <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, rejectedProduct: !prev.rejectedProduct }))}>

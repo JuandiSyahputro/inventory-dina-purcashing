@@ -8,7 +8,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { UnitSchema } from "@/schema/units-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { memo, useTransition } from "react";
+import { memo, useEffect, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -66,6 +66,14 @@ const UnitUpdate = ({ unit, openDialog, setOpenDialog }: UnitUpdatedTypes) => {
       }
     });
   };
+
+  useEffect(() => {
+    if (!openDialog) return;
+
+    form.reset({
+      name: unit.name ?? "",
+    });
+  }, [unit, form, openDialog]);
 
   return (
     <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, updatedUnit: !prev.updatedUnit }))}>

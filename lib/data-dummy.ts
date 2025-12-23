@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { ArrowDownCircle, ArrowUpCircle, Boxes, Handshake, Layers, Package, RefreshCcw, Ruler, UsersRound } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, Boxes, Handshake, Layers, Package, RefreshCcw, RefreshCwOff, Ruler, UsersRound } from "lucide-react";
 
 export const dataSideBar = {
   navMain: [
@@ -47,6 +47,12 @@ export const dataSideBar = {
           title: "Outbound",
           url: "/dashboard/operations/outbound",
           icon: ArrowUpCircle,
+          roles: ["SUPERADMIN", "USER"] as Role[],
+        },
+        {
+          title: "Rejected",
+          url: "/dashboard/operations/rejected",
+          icon: RefreshCwOff,
           roles: ["SUPERADMIN", "USER"] as Role[],
         },
       ],

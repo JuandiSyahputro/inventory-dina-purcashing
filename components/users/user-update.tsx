@@ -12,7 +12,7 @@ import { EditUserSchema } from "@/schema/users-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { memo, useState, useTransition } from "react";
+import { memo, useEffect, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -77,6 +77,17 @@ const UserUpdate = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
       }
     });
   };
+
+  useEffect(() => {
+    if (!openDialog) return;
+
+    form.reset({
+      name: user.name ?? "",
+      storeId: user.store_id ?? "",
+      role: user.role ?? "",
+      email: user.email ?? "",
+    });
+  }, [user, form, openDialog]);
 
   return (
     <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, updatedUser: !prev.updatedUser }))}>
