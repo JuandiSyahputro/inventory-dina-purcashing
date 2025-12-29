@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/incompatible-library */
 "use client";
 
-import { ColumnDef, ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { useMemo } from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,9 +18,6 @@ const SKELETON_ROWS = 10;
 ---------------------------------------------------- */
 
 export function DataTableSkeleton<TData, TValue>({ columns }: { columns: ColumnDef<TData, TValue>[] }) {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
   /* ----------------------------------------------------
      Skeleton-aware data
   ---------------------------------------------------- */
@@ -54,17 +51,7 @@ export function DataTableSkeleton<TData, TValue>({ columns }: { columns: ColumnD
   const table = useReactTable({
     data: tableData,
     columns: tableColumns,
-    manualPagination: true,
-    state: {
-      sorting,
-      columnFilters,
-    },
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   /* ----------------------------------------------------

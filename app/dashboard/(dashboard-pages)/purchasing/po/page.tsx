@@ -5,7 +5,7 @@ import { columnPo } from "./column-po";
 const PurcahseOrdersPage = async () => {
   return (
     <div className="container mx-auto p-10">
-      <div className="mb-5 text-3xl font-bold">Purcahse Orders Page</div>
+      <h1 className="mb-5 text-3xl font-bold">Purcahse Orders Page</h1>
       <DataTable
         columns={columnPo}
         dataProps={[]}

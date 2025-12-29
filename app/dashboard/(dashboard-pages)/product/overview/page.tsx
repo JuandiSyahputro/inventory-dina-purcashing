@@ -26,7 +26,7 @@ const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ 
 
   return (
     <div className="container p-10 mx-auto">
-      <div className="mb-5 text-3xl font-bold">Product Page</div>
+      <h1 className="mb-5 text-3xl font-bold">Product Page</h1>
       <Suspense fallback={<DataTableSkeleton columns={isAdmin ? columnProduct : columnProductUser} />}>
         <DataTable
           columns={isAdmin ? columnProduct : columnProductUser}

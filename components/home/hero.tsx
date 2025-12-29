@@ -66,11 +66,11 @@ export const Hero = () => {
   return (
     <section ref={containerRef} className="min-h-screen pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-light via-white to-blue-50">
       <div className="max-w-4xl mx-auto text-center">
-        <h1 ref={titleRef} className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+        <div ref={titleRef} className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
           <span className="hero-word bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">Intelligent</span>
           <span className="hero-word block bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">Inventory</span>
           <span className="hero-word block text-gray-900">Management Platform</span>
-        </h1>
+        </div>
 
         <p ref={descRef} className="text-xl sm:text-2xl text-gray-600 mb-12 leading-relaxed">
           Reduce stockouts by 40%, cut carrying costs by 30%, and gain complete visibility into your inventory with AI-powered forecasting and real-time tracking across all locations.
