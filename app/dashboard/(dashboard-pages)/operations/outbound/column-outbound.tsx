@@ -23,7 +23,7 @@ export const columnOutbound: ColumnDef<ProductTypes>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
       return (
-        <Badge variant="outline" className={cn("text-foreground px-2 py-1.5 [&>svg]:size-4.5", row.original.status === 4 && "text-green-500")}>
+        <Badge variant="outline" className={cn("text-foreground px-2 py-1.5 [&>svg]:size-4.5", row.original.status === 4 && "bg-green-50 text-green-700 border-green-600")}>
           <Activity mode={row.original.status === 3 ? "visible" : "hidden"}>
             <Loader size={30} />
           </Activity>

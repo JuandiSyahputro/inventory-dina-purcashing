@@ -147,7 +147,7 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
                 onValueChange={(value) => {
                   handleChangeLimit(Number(value));
                 }}>
-                <SelectTrigger className="h-8 w-[70px]">
+                <SelectTrigger className="h-8 w-[70px]" aria-label="Rows per page">
                   <SelectValue placeholder={paginateCursor.limit} />
                 </SelectTrigger>
                 <SelectContent side="top">

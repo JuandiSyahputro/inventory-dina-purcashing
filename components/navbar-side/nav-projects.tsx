@@ -2,7 +2,7 @@
 
 import { type LucideIcon } from "lucide-react";
 
-import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -31,7 +31,6 @@ export function NavProjects({
                 <span>{item.name}</span>
               </Link>
             </SidebarMenuButton>
-            <SidebarMenuAction showOnHover className={cn(splitPath.includes(item.name.toLowerCase()) && "text-white group-hover:text-white")} />
           </SidebarMenuItem>
         ))}
       </SidebarMenu>

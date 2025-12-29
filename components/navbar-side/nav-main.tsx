@@ -32,17 +32,19 @@ const RenderNotCollapse = (item: NavMainTypes["items"][number]) => {
   const splitPath = pathname.split("/");
 
   return (
-    <Link href={item.url}>
-      <SidebarMenuButton
-        tooltip={item.title}
-        className={cn(
-          "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white active:bg-custom-primary active:text-white! [&>svg]:size-5",
-          splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary hover:bg-custom-primary-dark/80! text-white!"
-        )}>
-        {item.icon && <item.icon />}
-        <span>{item.title}</span>
-      </SidebarMenuButton>
-    </Link>
+    <SidebarMenuSubItem>
+      <Link href={item.url}>
+        <SidebarMenuButton
+          tooltip={item.title}
+          className={cn(
+            "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white active:bg-custom-primary active:text-white! [&>svg]:size-5",
+            splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary hover:bg-custom-primary-dark/80! text-white"
+          )}>
+          {item.icon && <item.icon />}
+          <span>{item.title}</span>
+        </SidebarMenuButton>
+      </Link>
+    </SidebarMenuSubItem>
   );
 };
 
@@ -54,7 +56,12 @@ const RenderCollapse = (item: NavMainTypes["items"][number]) => {
   return (
     <Collapsible key={item.title} asChild defaultOpen={isOpen} className="group/collapsible">
       <SidebarMenuItem>
-        <CollapsibleTrigger asChild className={cn("hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white", splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary hover:bg-custom-primary-dark/80! text-white!")}>
+        <CollapsibleTrigger
+          asChild
+          className={cn(
+            "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white",
+            splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary data-[state=open]:text-white data-[state=open]:hover:bg-custom-primary-dark/80 data-[state=open]:hover:text-white"
+          )}>
           <SidebarMenuButton tooltip={item.title} className="[&>svg]:size-5">
             {item.icon && <item.icon />}
             <span>{item.title}</span>

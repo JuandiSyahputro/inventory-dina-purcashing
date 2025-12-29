@@ -26,7 +26,7 @@ export const columnProduct: ColumnDef<ProductTypes>[] = [
       const isRejected = row.original.status === 2 || row.original.status === 5;
 
       return (
-        <Badge variant="outline" className={cn("text-muted-foreground px-2 py-1.5 [&>svg]:size-4.5", isApproved && "text-green-500", isRejected && "text-destructive")}>
+        <Badge variant="outline" className={cn("text-muted-foreground px-2 py-1.5 [&>svg]:size-4.5", isApproved && "bg-green-50 text-green-700 border-green-600", isRejected && "text-destructive")}>
           <Activity mode={isPending ? "visible" : "hidden"}>
             <Loader size={30} />
           </Activity>
