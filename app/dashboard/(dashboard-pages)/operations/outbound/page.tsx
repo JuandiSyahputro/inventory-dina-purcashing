@@ -27,7 +27,7 @@ const OutboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: s
 
   return (
     <div className="container p-10 mx-auto">
-      <h1 className="mb-5 text-3xl font-bold">Outbound Product Page</h1>
+      <div className="mb-5 text-3xl font-bold">Outbound Product Page</div>
       <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
     </div>
   );

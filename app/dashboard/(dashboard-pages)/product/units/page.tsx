@@ -14,7 +14,7 @@ const UnitsPage = async ({ searchParams }: { searchParams?: Promise<{ [key: stri
 
   return (
     <div className="container mx-auto p-10">
-      <h1 className="mb-5 text-3xl font-bold">Units Page</h1>
+      <div className="mb-5 text-3xl font-bold">Units Page</div>
       <DataTable columns={columnUnits} dataProps={dataUnits} fetchData={fetchUnirs} elements={<FormActionUnits />} title="unit name" />
     </div>
   );

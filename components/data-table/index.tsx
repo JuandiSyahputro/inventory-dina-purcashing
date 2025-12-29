@@ -2,7 +2,7 @@
 "use client";
 
 import { ColumnDef, ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { Activity, useEffect, useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,8 +32,8 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
     if (isPending) {
       return Array.from({ length: 10 }, () => ({} as TData));
     }
-    return searchData ? data : dataProps;
-  }, [isPending, data, dataProps, searchData]);
+    return data;
+  }, [isPending, data]);
 
   /* ----------------------------------------------------
        Skeleton-aware columns (v8)
@@ -71,32 +71,36 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const handleNext = async () => {
-    const res = await fetchData({
-      offset: paginateCursor.offset + paginateCursor.limit,
-      limit: paginateCursor.limit,
+  const handleNext = () => {
+    startTransition(async () => {
+      const res = await fetchData({
+        offset: paginateCursor.offset + paginateCursor.limit,
+        limit: paginateCursor.limit,
+      });
+
+      setData(res.data);
+
+      setPaginateCursor((prev) => ({
+        ...prev,
+        offset: prev.offset + prev.limit,
+      }));
     });
-
-    setData(res.data);
-
-    setPaginateCursor((prev) => ({
-      ...prev,
-      offset: prev.offset + prev.limit,
-    }));
   };
 
-  const handlePrev = async () => {
-    const res = await fetchData({
-      offset: paginateCursor.offset - paginateCursor.limit,
-      limit: paginateCursor.limit,
+  const handlePrev = () => {
+    startTransition(async () => {
+      const res = await fetchData({
+        offset: paginateCursor.offset - paginateCursor.limit,
+        limit: paginateCursor.limit,
+      });
+
+      setData(res.data);
+
+      setPaginateCursor((prev) => ({
+        ...prev,
+        offset: prev.offset - prev.limit,
+      }));
     });
-
-    setData(res.data);
-
-    setPaginateCursor((prev) => ({
-      ...prev,
-      offset: prev.offset - prev.limit,
-    }));
   };
 
   const handleChangeLimit = async (limit: number) => {
@@ -165,17 +169,17 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center space-x-2 py-4">
-        <div className="flex w-full items-center justify-between px-2">
+      <div className="flex flex-row min-h-14 max-h-14 w-full items-center justify-between">
+        <Activity mode={paginateCursor.limit > 0 ? "visible" : "hidden"}>
           <div className="flex items-center space-x-6 lg:space-x-8">
             <div className="flex items-center space-x-2">
-              <p className="text-sm font-medium">Rows per page</p>
+              <span>Rows per page</span>
               <Select
                 value={`${paginateCursor.limit}`}
                 onValueChange={(value) => {
                   handleChangeLimit(Number(value));
                 }}>
-                <SelectTrigger className="h-8 w-[70px]" aria-label="Rows per page">
+                <SelectTrigger className="h-8 w-[70px] min-w-[70px] max-w-[70px]" aria-label="Rows per page">
                   <SelectValue placeholder={paginateCursor.limit} />
                 </SelectTrigger>
                 <SelectContent side="top">
@@ -188,17 +192,17 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
               </Select>
             </div>
           </div>
-          <div className="flex items-center">
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handlePrev} disabled={!paginateCursor.offset}>
-                <span className="sr-only">Go to previous page</span>
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handleNext} disabled={data.length < paginateCursor.limit}>
-                <span className="sr-only">Go to next page</span>
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
+        </Activity>
+        <div className="flex items-center">
+          <div className="flex items-center space-x-2">
+            <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handlePrev} disabled={!paginateCursor.offset}>
+              <span className="sr-only">Go to previous page</span>
+              <ChevronLeftIcon className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handleNext} disabled={data.length < paginateCursor.limit}>
+              <span className="sr-only">Go to next page</span>
+              <ChevronRightIcon className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>

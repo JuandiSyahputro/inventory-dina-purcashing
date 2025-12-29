@@ -28,7 +28,7 @@ const InboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
 
   return (
     <div className="container p-10 mx-auto">
-      <h1 className="mb-5 text-3xl font-bold">Inbound Product Page</h1>
+      <div className="mb-5 text-3xl font-bold">Inbound Product Page</div>
       <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
     </div>
   );

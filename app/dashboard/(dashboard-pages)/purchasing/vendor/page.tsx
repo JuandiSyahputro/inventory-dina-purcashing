@@ -13,7 +13,7 @@ const VendorPage = async ({ searchParams }: { searchParams?: Promise<{ [key: str
   };
   return (
     <div className="container mx-auto p-10">
-      <h1 className="mb-5 text-3xl font-bold">Vendor Page</h1>
+      <div className="mb-5 text-3xl font-bold">Vendor Page</div>
       <DataTable columns={columnVendor} dataProps={vendors} fetchData={fetchVendors} elements={<FormActionVendor />} title="vendor name" />
     </div>
   );

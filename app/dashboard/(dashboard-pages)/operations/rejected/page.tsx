@@ -23,7 +23,7 @@ const ProductPageRejected = async ({ searchParams }: { searchParams?: Promise<{ 
 
   return (
     <div className="container p-10 mx-auto">
-      <h1 className="mb-5 text-3xl font-bold">Product Rejected Page</h1>
+      <div className="mb-5 text-3xl font-bold">Product Rejected Page</div>
       <DataTable columns={isAdmin ? columnRejected : columnRejectedUser} dataProps={products.data} fetchData={fetchProductItems} title="product code or name" />
     </div>
   );

@@ -24,7 +24,7 @@ const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ 
 
   return (
     <div className="container p-10 mx-auto">
-      <h1 className="mb-5 text-3xl font-bold">Product Page</h1>
+      <div className="mb-5 text-3xl font-bold">Product Page</div>
       <DataTable
         columns={isAdmin ? columnProduct : columnProductUser}
         dataProps={products.data}

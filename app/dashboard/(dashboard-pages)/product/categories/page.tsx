@@ -14,7 +14,7 @@ const CategoriesPage = async ({ searchParams }: { searchParams?: Promise<{ [key:
 
   return (
     <div className="container mx-auto p-10">
-      <h1 className="mb-5 text-3xl font-bold">Categories Page</h1>
+      <div className="mb-5 text-3xl font-bold">Categories Page</div>
       <DataTable columns={columnCategory} dataProps={dataCategories} fetchData={fetchCategories} elements={<FormActionCategory />} title="category name" />
     </div>
   );
