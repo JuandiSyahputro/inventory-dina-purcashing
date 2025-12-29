@@ -103,12 +103,14 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
     });
   };
 
-  const handleChangeLimit = async (limit: number) => {
-    const res = await fetchData({ limit });
+  const handleChangeLimit = (limit: number) => {
+    startTransition(async () => {
+      const res = await fetchData({ limit });
 
-    setData(res.data);
-    setPaginateCursor((prev) => ({ ...prev, limit }));
-    push(`${pathname}?limit=${limit}`);
+      setData(res.data);
+      setPaginateCursor((prev) => ({ ...prev, limit }));
+      push(`${pathname}?limit=${limit}`);
+    });
   };
 
   useEffect(() => {
