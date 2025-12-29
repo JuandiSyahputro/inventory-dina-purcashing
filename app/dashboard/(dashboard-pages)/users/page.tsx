@@ -2,8 +2,10 @@ import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 import { Suspense } from "react";
 import { columnUser } from "./column-user";
 import UsersTable from "./users-table";
+import { connection } from "next/server";
 
 const UsersPage = async () => {
+  await connection();
   // const { data: dataStores } = (await getStores({})) || [];
   // const { data: users } = await getUsers({ limit: 10, offset: 0 });
   // const key = dataStores.filter((store) => store.id === dataStores[0].id)[0].id;

@@ -3,8 +3,10 @@ import FormActionVendor from "@/components/vendor/form-action";
 import { Suspense } from "react";
 import { columnVendor } from "./column-vendor";
 import VendorTable from "./vendor-table";
+import { connection } from "next/server";
 
 const VendorPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const limitSize = (await searchParams)?.limit;
   // const { data: vendors } = await getVendors({ limit: limitSize ? Number(limitSize) : 10, offset: 0 });
 

@@ -5,9 +5,11 @@ import { Suspense } from "react";
 import { columnProduct } from "./column-product";
 import { columnProductUser } from "./column-product-user";
 import OverviewTable from "./overview-table";
+import { connection } from "next/server";
 // import ProductExport from "@/components/products/admin/product-export";
 
 const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const user = await auth();
   const params = (await searchParams)?.store_name;
   const limitSize = (await searchParams)?.limit;

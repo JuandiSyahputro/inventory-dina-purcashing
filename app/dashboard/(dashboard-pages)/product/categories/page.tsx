@@ -3,8 +3,10 @@ import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 import { Suspense } from "react";
 import CategoriesTable from "./categories-table";
 import { columnCategory } from "./column-category";
+import { connection } from "next/server";
 
 const CategoriesPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const limitSize = (await searchParams)?.limit;
   // const { data: dataCategories } = await getCategories({ limit: limitSize ? Number(limitSize) : 10, offset: 0 });
 

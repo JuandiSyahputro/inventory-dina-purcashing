@@ -7,8 +7,10 @@ import { Suspense } from "react";
 import { columnOutbound } from "./column-outbound";
 import { columnOutboundUser } from "./column-outbound-user";
 import OutboundTable from "./outbound-table";
+import { connection } from "next/server";
 
 const OutboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const user = await auth();
   const params = (await searchParams)?.store_name;
   const limitSize = (await searchParams)?.limit;

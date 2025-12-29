@@ -4,8 +4,10 @@ import FormActionUnits from "@/components/units/form-action";
 import { columnUnits } from "./column-units";
 import { Suspense } from "react";
 import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
+import { connection } from "next/server";
 
 const UnitsPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const limitSize = (await searchParams)?.limit;
   const { data: dataUnits } = await getUnits({ limit: limitSize ? Number(limitSize) : 10, offset: 0 });
 

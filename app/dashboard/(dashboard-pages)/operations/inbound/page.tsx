@@ -8,8 +8,10 @@ import { Suspense } from "react";
 import { columnInbound } from "./column-inbound";
 import { columnInboundUser } from "./column-inbound-user";
 import InboundTable from "./inbound-table";
+import { connection } from "next/server";
 
 const InboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const user = await auth();
   const params = (await searchParams)?.store_name;
   const limitSize = (await searchParams)?.limit;

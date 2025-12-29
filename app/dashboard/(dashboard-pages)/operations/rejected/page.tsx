@@ -5,8 +5,10 @@ import { Suspense } from "react";
 import { columnRejected } from "./column-reject";
 import { columnRejectedUser } from "./column-reject-user";
 import RejectedTable from "./rejected-table";
+import { connection } from "next/server";
 
 const ProductPageRejected = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  await connection();
   const user = await auth();
   const params = (await searchParams)?.store_name;
   const limitSize = (await searchParams)?.limit;
