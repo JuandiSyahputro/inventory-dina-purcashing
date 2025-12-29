@@ -4,6 +4,8 @@ import { DataTable } from "@/components/data-table";
 import { redirect } from "next/navigation";
 import { columnRejected } from "./column-reject";
 import { columnRejectedUser } from "./column-reject-user";
+import { Suspense } from "react";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 
 const ProductPageRejected = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
@@ -24,7 +26,9 @@ const ProductPageRejected = async ({ searchParams }: { searchParams?: Promise<{ 
   return (
     <div className="container p-10 mx-auto">
       <div className="mb-5 text-3xl font-bold">Product Rejected Page</div>
-      <DataTable columns={isAdmin ? columnRejected : columnRejectedUser} dataProps={products.data} fetchData={fetchProductItems} title="product code or name" />
+      <Suspense fallback={<DataTableSkeleton columns={isAdmin ? columnRejected : columnRejectedUser} />}>
+        <DataTable columns={isAdmin ? columnRejected : columnRejectedUser} dataProps={products.data} fetchData={fetchProductItems} title="product code or name" />
+      </Suspense>
     </div>
   );
 };

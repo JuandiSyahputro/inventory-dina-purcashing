@@ -3,6 +3,8 @@ import { getUsers } from "@/actions/users-action";
 import { DataTable } from "@/components/data-table";
 import FormActionUsers from "@/components/users/form-action";
 import { columnUser } from "./column-user";
+import { Suspense } from "react";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 
 const UsersPage = async () => {
   const { data: dataStores } = (await getStores({})) || [];
@@ -37,7 +39,9 @@ const UsersPage = async () => {
   return (
     <div className="container mx-auto p-10">
       <div className="mb-5 text-3xl font-bold">Users Management Page</div>
-      <DataTable columns={columnUser} dataProps={formatUsers} fetchData={fetchUsers} elements={<FormActionUsers key={key} stores={dataStores} />} title="username or email" />
+      <Suspense fallback={<DataTableSkeleton columns={columnUser} />}>
+        <DataTable columns={columnUser} dataProps={formatUsers} fetchData={fetchUsers} elements={<FormActionUsers key={key} stores={dataStores} />} title="username or email" />
+      </Suspense>
     </div>
   );
 };

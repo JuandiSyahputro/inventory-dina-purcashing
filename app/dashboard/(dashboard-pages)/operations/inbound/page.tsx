@@ -7,6 +7,8 @@ import { columnInbound } from "./column-inbound";
 import { columnInboundUser } from "./column-inbound-user";
 import FormActionProductAdmin from "@/components/products/admin/form-action-admin";
 import FormActionProductUser from "@/components/products/user/form-action-user";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
+import { Suspense } from "react";
 
 const InboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
@@ -29,7 +31,9 @@ const InboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
   return (
     <div className="container p-10 mx-auto">
       <div className="mb-5 text-3xl font-bold">Inbound Product Page</div>
-      <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
+      <Suspense fallback={<DataTableSkeleton columns={columns} />}>
+        <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
+      </Suspense>
     </div>
   );
 };

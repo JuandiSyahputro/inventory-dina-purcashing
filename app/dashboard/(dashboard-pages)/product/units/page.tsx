@@ -2,6 +2,8 @@ import { getUnits } from "@/actions/unit-actions";
 import { DataTable } from "@/components/data-table";
 import FormActionUnits from "@/components/units/form-action";
 import { columnUnits } from "./column-units";
+import { Suspense } from "react";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 
 const UnitsPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const limitSize = (await searchParams)?.limit;
@@ -15,7 +17,9 @@ const UnitsPage = async ({ searchParams }: { searchParams?: Promise<{ [key: stri
   return (
     <div className="container mx-auto p-10">
       <div className="mb-5 text-3xl font-bold">Units Page</div>
-      <DataTable columns={columnUnits} dataProps={dataUnits} fetchData={fetchUnirs} elements={<FormActionUnits />} title="unit name" />
+      <Suspense fallback={<DataTableSkeleton columns={columnUnits} />}>
+        <DataTable columns={columnUnits} dataProps={dataUnits} fetchData={fetchUnirs} elements={<FormActionUnits />} title="unit name" />
+      </Suspense>
     </div>
   );
 };

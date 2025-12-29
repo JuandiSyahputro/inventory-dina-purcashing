@@ -4,6 +4,8 @@ import { DataTable } from "@/components/data-table";
 import { redirect } from "next/navigation";
 import { columnProduct } from "./column-product";
 import { columnProductUser } from "./column-product-user";
+import { Suspense } from "react";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 // import ProductExport from "@/components/products/admin/product-export";
 
 const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
@@ -25,13 +27,15 @@ const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ 
   return (
     <div className="container p-10 mx-auto">
       <div className="mb-5 text-3xl font-bold">Product Page</div>
-      <DataTable
-        columns={isAdmin ? columnProduct : columnProductUser}
-        dataProps={products.data}
-        fetchData={fetchProductItems}
-        // elements={<ProductExport />}
-        title="product code or name"
-      />
+      <Suspense fallback={<DataTableSkeleton columns={isAdmin ? columnProduct : columnProductUser} />}>
+        <DataTable
+          columns={isAdmin ? columnProduct : columnProductUser}
+          dataProps={products.data}
+          fetchData={fetchProductItems}
+          // elements={<ProductExport />}
+          title="product code or name"
+        />
+      </Suspense>
     </div>
   );
 };

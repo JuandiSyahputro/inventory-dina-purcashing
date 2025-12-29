@@ -6,6 +6,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { redirect } from "next/navigation";
 import { columnOutbound } from "./column-outbound";
 import { columnOutboundUser } from "./column-outbound-user";
+import { Suspense } from "react";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 
 const OutboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
@@ -28,7 +30,9 @@ const OutboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: s
   return (
     <div className="container p-10 mx-auto">
       <div className="mb-5 text-3xl font-bold">Outbound Product Page</div>
-      <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
+      <Suspense fallback={<DataTableSkeleton columns={columns} />}>
+        <DataTable columns={columns} dataProps={products} fetchData={fetchProductItems} elements={formAction} title="product code or name" />
+      </Suspense>
     </div>
   );
 };

@@ -2,6 +2,8 @@ import FormActionCategory from "@/components/category/form-action";
 import { DataTable } from "@/components/data-table";
 import { columnCategory } from "./column-category";
 import { getCategories } from "@/actions/category-actions";
+import { Suspense } from "react";
+import { DataTableSkeleton } from "@/components/data-table/table-skeleton";
 
 const CategoriesPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const limitSize = (await searchParams)?.limit;
@@ -15,7 +17,9 @@ const CategoriesPage = async ({ searchParams }: { searchParams?: Promise<{ [key:
   return (
     <div className="container mx-auto p-10">
       <div className="mb-5 text-3xl font-bold">Categories Page</div>
-      <DataTable columns={columnCategory} dataProps={dataCategories} fetchData={fetchCategories} elements={<FormActionCategory />} title="category name" />
+      <Suspense fallback={<DataTableSkeleton columns={columnCategory} />}>
+        <DataTable columns={columnCategory} dataProps={dataCategories} fetchData={fetchCategories} elements={<FormActionCategory />} title="category name" />
+      </Suspense>
     </div>
   );
 };
