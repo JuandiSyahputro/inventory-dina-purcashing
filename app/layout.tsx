@@ -7,11 +7,13 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
     siteName: "Leny Skincare",
     images: [
       {
-        url: "https://www.lenyskincare.com/images/og-image-leny.webp",
+        url: "/logo-leny.webp",
         width: 1200,
         height: 630,
         alt: "Leny Skincare hero product",
@@ -42,7 +44,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Leny Skincare",
     description: "Explore Leny Skincare's premium skincare range for healthy, radiant skin.",
-    images: ["https://www.lenyskincare.com/images/twitter-card-leny.webp"],
+    images: ["/logo-leny.webp"],
   },
 };
 

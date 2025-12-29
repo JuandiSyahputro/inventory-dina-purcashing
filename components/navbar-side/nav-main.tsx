@@ -60,7 +60,7 @@ const RenderCollapse = (item: NavMainTypes["items"][number]) => {
           asChild
           className={cn(
             "hover:cursor-pointer hover:bg-custom-primary-dark/80 hover:text-white",
-            splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary data-[state=open]:text-white data-[state=open]:hover:bg-custom-primary-dark/80 data-[state=open]:hover:text-white"
+            splitPath.includes(item.title.toLowerCase()) && "bg-custom-primary data-[state=closed]:text-white data-[state=open]:text-white data-[state=open]:hover:bg-custom-primary-dark/80 data-[state=open]:hover:text-white"
           )}>
           <SidebarMenuButton tooltip={item.title} className="[&>svg]:size-5">
             {item.icon && <item.icon />}
