@@ -87,7 +87,7 @@ export const getUsers = async (props: FetchDataPropsTypes) => {
     const users = await prisma.users.findMany({
       where,
       include: {
-        store: true,
+        store: { select: { name: true } },
       },
       ...(limit && { take: Number(limit) }),
       ...(offset && { skip: Number(offset) }),

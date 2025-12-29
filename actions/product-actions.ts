@@ -7,52 +7,54 @@ import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
+import { unstable_cache } from "next/cache";
 
-export const getProductsItems = async (props: GetProductItemTypes) => {
-  const session = await auth();
-  if (!session?.user) redirect("/auth/login");
+export const getProductsItems = unstable_cache(
+  async (props: GetProductItemTypes) => {
+    const {
+      store_name,
+      status,
+      isByOrderStatus = false,
+      queryParams: { limit = 10, offset = 0, search },
+    } = props;
+    const pageSize = Number(limit);
+    const page = Number(offset);
 
-  const {
-    store_name,
-    status,
-    isByOrderStatus = false,
-    queryParams: { limit = 10, offset = 0, search },
-  } = props;
-  const pageSize = Number(limit);
-  const page = Number(offset);
+    try {
+      const stores = store_name && store_name.toLowerCase() !== "all" ? store_name.split(",").map((s) => s.trim()) : undefined;
 
-  try {
-    const stores = store_name && store_name.toLowerCase() !== "all" ? store_name.split(",").map((s) => s.trim()) : undefined;
+      const whereBase: Prisma.ProductItemsWhereInput = {
+        ...(status ? (Array.isArray(status) && status.length > 1 ? { status: { in: status } } : { status: Number(status) }) : {}),
+        ...(stores ? { store: { name: { in: stores } } } : {}),
+        ...(search ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { productCode: { contains: search, mode: "insensitive" } }] } : {}),
+      };
 
-    const whereBase: Prisma.ProductItemsWhereInput = {
-      ...(status ? (Array.isArray(status) && status.length > 1 ? { status: { in: status } } : { status: Number(status) }) : {}),
-      ...(stores ? { store: { name: { in: stores } } } : {}),
-      ...(search ? { OR: [{ name: { contains: search, mode: "insensitive" } }, { productCode: { contains: search, mode: "insensitive" } }] } : {}),
-    };
+      const where = { ...whereBase };
 
-    const where = { ...whereBase };
-
-    const items = await prisma.productItems.findMany({
-      where,
-      include: {
-        unit: true,
-        store: true,
-        categories: true,
-        vendor: true,
-      },
-      orderBy: [isByOrderStatus ? { status: "asc" } : {}, { createdAt: "desc" }],
-      take: pageSize,
-      skip: page,
-    });
-
-    return {
-      data: formatMappingProducts(items as ProductTypes[]),
-    };
-  } catch (error) {
-    console.error("Error fetching product items:", error);
-    throw error;
-  }
-};
+      const items = await prisma.productItems.findMany({
+        where,
+        include: {
+          unit: { select: { name: true } },
+          store: { select: { name: true } },
+          categories: { select: { name: true } },
+          vendor: { select: { name: true } },
+        },
+        orderBy: isByOrderStatus ? [{ status: "asc" }, { createdAt: "desc" }] : [{ createdAt: "desc" }],
+        take: pageSize,
+        skip: page,
+      });
+      console.log({ items });
+      return {
+        data: formatMappingProducts(items as ProductTypes[]),
+      };
+    } catch (error) {
+      console.error("Error fetching product items:", error);
+      throw error;
+    }
+  },
+  ["product-items"],
+  { revalidate: 60 }
+);
 
 export const addProductItemsUser = async (formData: FormData) => {
   const session = await auth();
@@ -122,9 +124,6 @@ export const addProductItemsUser = async (formData: FormData) => {
 };
 
 export const addProductItemsAdmin = async (formData: FormData) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const rawData = Object.fromEntries(formData);
   const validatedFields = ProductAdminSchema.safeParse(rawData);
 
@@ -279,9 +278,6 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
 };
 
 export const updateProductItemAdmin = async (id: string, typeAction: string, formData: FormData) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const rawData = Object.fromEntries(formData);
   const validatedFields = ProductAdminSchema.safeParse(rawData);
 
@@ -369,9 +365,6 @@ export const updateProductItemAdmin = async (id: string, typeAction: string, for
 };
 
 export const rejectedProductItemAdmin = async (id: string, formData: FormData) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const rawData = Object.fromEntries(formData);
   const validatedFields = ProductRejectedSchema.safeParse(rawData);
 
@@ -532,9 +525,6 @@ export const addUpdateOutboundItemUser = async (formData: FormData) => {
 };
 
 export const approveRejectedOutboundProductItemAdmin = async (id: string, type: string, formData: FormData) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const rawData = Object.fromEntries(formData);
   const validatedFields = ProductRejectedSchema.safeParse(rawData);
 
@@ -613,9 +603,6 @@ export const approveRejectedOutboundProductItemAdmin = async (id: string, type: 
 };
 
 export const deleteProduct = async (id: string) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const validatedFields = DeletedProductSchema.safeParse({ id });
   if (!validatedFields.success) {
     return {
