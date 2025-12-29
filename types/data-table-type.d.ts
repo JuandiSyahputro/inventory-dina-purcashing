@@ -11,4 +11,11 @@ declare global {
       data: TData[];
     }>;
   }
+
+  interface TableServerProps<TData> {
+    storeName?: string;
+    limit?: number;
+    columns: ColumnDef<TData>[];
+    formAction?: React.ReactNode;
+  }
 }
