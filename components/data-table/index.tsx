@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/incompatible-library */
 "use client";
 
-import { ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
-import { useEffect, useState, useTransition } from "react";
+import { ColumnDef, ColumnFiltersState, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
+import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,25 +11,53 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSearchFetch } from "@/hooks/use-search-fetch";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Skeleton } from "../ui/skeleton";
 
 export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements }: DataTableProps<TData, TValue>) {
   const { push } = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const limitSize = searchParams?.get("limit");
+  const [isPending, startTransition] = useTransition();
   const [data, setData] = useState<TData[]>(dataProps);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchData, setSearchData] = useState("");
-  const [, startTransition] = useTransition();
   const [paginateCursor, setPaginateCursor] = useState({
     limit: limitSize ? Number(limitSize) : 10,
     offset: 0,
   });
 
+  const tableData = useMemo<TData[]>(() => {
+    if (isPending) {
+      return Array.from({ length: 10 }, () => ({} as TData));
+    }
+    return searchData ? data : dataProps;
+  }, [isPending, data, dataProps, searchData]);
+
+  /* ----------------------------------------------------
+       Skeleton-aware columns (v8)
+    ---------------------------------------------------- */
+
+  const tableColumns = useMemo<ColumnDef<TData, TValue>[]>(() => {
+    if (!isPending) return columns;
+
+    return columns.map((col) => ({
+      ...col,
+      header: () => <Skeleton className="w-full h-7" />,
+      cell: () => <Skeleton className="w-full h-7" />,
+      accessorFn: (row: TData) => {
+        if ("accessorKey" in col) {
+          return row[col.accessorKey as keyof TData];
+        }
+        return null;
+      },
+    })) as ColumnDef<TData, TValue>[];
+  }, [isPending, columns]);
+
   const table = useReactTable({
-    data,
-    columns,
+    data: tableData,
+    columns: tableColumns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     manualPagination: true,
@@ -80,9 +108,9 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
   };
 
   useEffect(() => {
-    const updatedDataState = () => setData(dataProps);
-
-    updatedDataState();
+    startTransition(() => {
+      setData(dataProps);
+    });
   }, [dataProps]);
 
   useSearchFetch({
