@@ -16,11 +16,11 @@ const InboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: st
 
   const isAdmin = user?.user?.role === "SUPERADMIN";
   const isParams = isAdmin ? params : user?.user.store;
-  const { data: products } = await getProductsItems({ store_name: isParams, status: [0, 1], queryParams: { limit: limitSize ? Number(limitSize) : 10, offset: 0 } });
+  const { data: products } = await getProductsItems({ store_name: isParams, isByOrderStatus: true, status: [0, 1], queryParams: { limit: limitSize ? Number(limitSize) : 10, offset: 0 } });
 
   const fetchProductItems = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";
-    return await getProductsItems({ store_name: isParams, status: [0, 1], queryParams: { limit, offset, search } });
+    return await getProductsItems({ store_name: isParams, isByOrderStatus: true, status: [0, 1], queryParams: { limit, offset, search } });
   };
 
   const columns: ColumnDef<ProductTypes>[] = isAdmin ? columnInbound : columnInboundUser;

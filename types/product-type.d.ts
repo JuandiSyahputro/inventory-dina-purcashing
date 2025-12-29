@@ -46,6 +46,7 @@ declare global {
 
   interface GetProductItemTypes {
     store_name?: string;
+    isByOrderStatus?: boolean;
     status?: number | string | number[];
     queryParams: FetchDataPropsTypes;
   }

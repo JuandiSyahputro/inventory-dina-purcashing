@@ -15,6 +15,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
   const {
     store_name,
     status,
+    isByOrderStatus = false,
     queryParams: { limit = 10, offset = 0, search },
   } = props;
   const pageSize = Number(limit);
@@ -39,7 +40,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
         categories: true,
         vendor: true,
       },
-      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+      orderBy: [isByOrderStatus ? { status: "asc" } : {}, { createdAt: "desc" }],
       take: pageSize,
       skip: page,
     });
