@@ -172,35 +172,41 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
         </Table>
       </div>
       <div className="inline-flex min-h-14 max-h-14 w-full items-center justify-between">
-        <div className="space-x-6 lg:space-x-8 inline-flex">
-          <span>Rows per page</span>
-          <Select
-            value={`${paginateCursor.limit}`}
-            onValueChange={(value) => {
-              handleChangeLimit(Number(value));
-            }}>
-            <SelectTrigger className="h-8 w-[70px] min-w-[70px] max-w-[70px]" aria-label="Rows per page">
-              <SelectValue placeholder={paginateCursor.limit} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {[10, 20, 30, 40, 50].map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handlePrev} disabled={!paginateCursor.offset}>
-            <span className="sr-only">Go to previous page</span>
-            <ChevronLeftIcon className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handleNext} disabled={data.length < paginateCursor.limit}>
-            <span className="sr-only">Go to next page</span>
-            <ChevronRightIcon className="h-4 w-4" />
-          </Button>
-        </div>
+        {isPending ? (
+          <Skeleton className="w-full h-7" />
+        ) : (
+          <>
+            <div className="space-x-6 lg:space-x-8 inline-flex">
+              <span>Rows per page</span>
+              <Select
+                value={`${paginateCursor.limit}`}
+                onValueChange={(value) => {
+                  handleChangeLimit(Number(value));
+                }}>
+                <SelectTrigger className="h-8 w-[70px] min-w-[70px] max-w-[70px]" aria-label="Rows per page">
+                  <SelectValue placeholder={paginateCursor.limit} />
+                </SelectTrigger>
+                <SelectContent side="top">
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                      {pageSize}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handlePrev} disabled={!paginateCursor.offset}>
+                <span className="sr-only">Go to previous page</span>
+                <ChevronLeftIcon className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" className="h-8 w-8 p-0 disabled:bg-accent-foreground disabled:[&>svg]:text-muted-foreground" onClick={handleNext} disabled={data.length < paginateCursor.limit}>
+                <span className="sr-only">Go to next page</span>
+                <ChevronRightIcon className="h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        )}
       </div>
     </>
   );
