@@ -3,8 +3,9 @@ import { DataTable } from "@/components/data-table";
 import FormActionVendor from "@/components/vendor/form-action";
 import { columnVendor } from "./column-vendor";
 
-const VendorPage = async () => {
-  const { data: vendors } = await getVendors({ limit: 10, offset: 0 });
+const VendorPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  const limitSize = (await searchParams)?.limit;
+  const { data: vendors } = await getVendors({ limit: limitSize ? Number(limitSize) : 10, offset: 0 });
 
   const fetchVendors = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";

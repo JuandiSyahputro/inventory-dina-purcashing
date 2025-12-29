@@ -10,15 +10,20 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useSearchFetch } from "@/hooks/use-search-fetch";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements }: DataTableProps<TData, TValue>) {
+  const { push } = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const limitSize = searchParams?.get("limit");
   const [data, setData] = useState<TData[]>(dataProps);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchData, setSearchData] = useState("");
   const [, startTransition] = useTransition();
   const [paginateCursor, setPaginateCursor] = useState({
-    limit: 10,
+    limit: limitSize ? Number(limitSize) : 10,
     offset: 0,
   });
 
@@ -67,10 +72,11 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
   };
 
   const handleChangeLimit = async (limit: number) => {
-    const res = await fetchData({ limit, offset: 0 });
+    const res = await fetchData({ limit });
 
     setData(res.data);
-    setPaginateCursor((prev) => ({ ...prev, limit, offset: 0 }));
+    setPaginateCursor((prev) => ({ ...prev, limit }));
+    push(`${pathname}?limit=${limit}`);
   };
 
   useEffect(() => {

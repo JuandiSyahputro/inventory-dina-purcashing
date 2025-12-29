@@ -3,10 +3,11 @@ import { DataTable } from "@/components/data-table";
 import { columnCategory } from "./column-category";
 import { getCategories } from "@/actions/category-actions";
 
-const CategoriesPage = async () => {
-  const { data: dataCategories } = await getCategories({ limit: 10, offset: 0 });
+const CategoriesPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  const limitSize = (await searchParams)?.limit;
+  const { data: dataCategories } = await getCategories({ limit: limitSize ? Number(limitSize) : 10, offset: 0 });
 
-  const fetchCategories = async ({ limit, offset, search }: FetchDataPropsTypes) => {
+  const fetchCategories = async ({ limit, offset, search }: FetchDataPropsTypes): Promise<{ data: CategoryTypes[] }> => {
     "use server";
     return await getCategories({ limit, offset, search });
   };

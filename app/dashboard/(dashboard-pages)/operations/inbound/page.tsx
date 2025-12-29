@@ -11,11 +11,12 @@ import FormActionProductUser from "@/components/products/user/form-action-user";
 const InboundPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
   const params = (await searchParams)?.store_name;
+  const limitSize = (await searchParams)?.limit;
   if (!user) redirect("/auth/login");
 
   const isAdmin = user?.user?.role === "SUPERADMIN";
   const isParams = isAdmin ? params : user?.user.store;
-  const { data: products } = await getProductsItems({ store_name: isParams, status: [0, 1], queryParams: { limit: 10, offset: 0 } });
+  const { data: products } = await getProductsItems({ store_name: isParams, status: [0, 1], queryParams: { limit: limitSize ? Number(limitSize) : 10, offset: 0 } });
 
   const fetchProductItems = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";

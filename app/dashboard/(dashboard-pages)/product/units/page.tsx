@@ -3,8 +3,9 @@ import { DataTable } from "@/components/data-table";
 import FormActionUnits from "@/components/units/form-action";
 import { columnUnits } from "./column-units";
 
-const UnitsPage = async () => {
-  const { data: dataUnits } = await getUnits({ limit: 10, offset: 0 });
+const UnitsPage = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
+  const limitSize = (await searchParams)?.limit;
+  const { data: dataUnits } = await getUnits({ limit: limitSize ? Number(limitSize) : 10, offset: 0 });
 
   const fetchUnirs = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";

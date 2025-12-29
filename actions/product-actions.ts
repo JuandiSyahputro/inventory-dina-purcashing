@@ -39,7 +39,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
         categories: true,
         vendor: true,
       },
-      orderBy: [{ createdAt: "desc" }],
+      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
       take: pageSize,
       skip: page,
     });

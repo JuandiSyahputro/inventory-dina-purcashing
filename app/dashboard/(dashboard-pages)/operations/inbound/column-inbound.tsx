@@ -36,6 +36,23 @@ export const columnInbound: ColumnDef<ProductTypes>[] = [
     },
   },
   {
+    accessorKey: "remarks",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
+    cell: ({ row }) => {
+      const remarks = row.original.remarks || "-";
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="block max-w-25 truncate">{remarks}</span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-custom-primary" arrowClassName="bg-custom-primary fill-custom-primary">
+            <p>{remarks}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
+  },
+  {
     accessorKey: "prCode",
     header: ({ column }) => <DataTableColumnHeader column={column} title="PR Code" />,
     cell: ({ row }) => {
@@ -113,23 +130,6 @@ export const columnInbound: ColumnDef<ProductTypes>[] = [
     cell: ({ row }) => {
       const price = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(row.original.price || 0);
       return <span>{price}</span>;
-    },
-  },
-  {
-    accessorKey: "remarks",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
-    cell: ({ row }) => {
-      const remarks = row.original.remarks || "-";
-      return (
-        <Tooltip>
-          <TooltipTrigger>
-            <span className="block max-w-25 truncate">{remarks}</span>
-          </TooltipTrigger>
-          <TooltipContent className="bg-custom-primary" arrowClassName="bg-custom-primary fill-custom-primary">
-            <p>{remarks}</p>
-          </TooltipContent>
-        </Tooltip>
-      );
     },
   },
   {

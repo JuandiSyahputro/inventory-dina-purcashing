@@ -8,12 +8,13 @@ import { columnRejectedUser } from "./column-reject-user";
 const ProductPageRejected = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
   const params = (await searchParams)?.store_name;
+  const limitSize = (await searchParams)?.limit;
   if (!user) redirect("/auth/login");
 
   const isAdmin = user?.user?.role === "SUPERADMIN";
   const isParams = isAdmin ? params : user?.user.store;
 
-  const products = await getProductsItems({ store_name: isParams, status: [2, 5], queryParams: { limit: 10, offset: 0 } });
+  const products = await getProductsItems({ store_name: isParams, status: [2, 5], queryParams: { limit: limitSize ? Number(limitSize) : 10, offset: 0 } });
 
   const fetchProductItems = async ({ limit, offset, search }: FetchDataPropsTypes) => {
     "use server";

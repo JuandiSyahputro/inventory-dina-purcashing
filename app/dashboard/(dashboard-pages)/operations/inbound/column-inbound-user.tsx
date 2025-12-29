@@ -40,6 +40,23 @@ export const columnInboundUser: ColumnDef<ProductTypes>[] = [
     },
   },
   {
+    accessorKey: "remarks",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
+    cell: ({ row }) => {
+      const remarks = row.original.remarks || "-";
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <span className="block max-w-25 truncate">{remarks}</span>
+          </TooltipTrigger>
+          <TooltipContent className="bg-custom-primary" arrowClassName="bg-custom-primary fill-custom-primary">
+            <p>{remarks}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
+  },
+  {
     accessorKey: "productCode",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Code" />,
     cell: ({ row }) => {
@@ -63,23 +80,7 @@ export const columnInboundUser: ColumnDef<ProductTypes>[] = [
     accessorKey: "stockIn",
     header: ({ column }) => <DataTableColumnHeader column={column} title="In Stock" />,
   },
-  {
-    accessorKey: "remarks",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Remarks" />,
-    cell: ({ row }) => {
-      const remarks = row.original.remarks || "-";
-      return (
-        <Tooltip>
-          <TooltipTrigger>
-            <span className="block max-w-25 truncate">{remarks}</span>
-          </TooltipTrigger>
-          <TooltipContent className="bg-custom-primary" arrowClassName="bg-custom-primary fill-custom-primary">
-            <p>{remarks}</p>
-          </TooltipContent>
-        </Tooltip>
-      );
-    },
-  },
+
   {
     accessorKey: "createdAt",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Created Date" />,
