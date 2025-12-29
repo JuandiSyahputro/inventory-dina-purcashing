@@ -7,6 +7,13 @@ import "dayjs/locale/id";
 
 export const columnUnits: ColumnDef<UnitTypes>[] = [
   {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <UnitAction unit={row.original} />;
+    },
+  },
+  {
     id: "No.",
     header: "No",
     cell: ({ row }) => <span>{row.index + 1}.</span>,
@@ -24,12 +31,5 @@ export const columnUnits: ColumnDef<UnitTypes>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Updated Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.updatedAt).format("D MMMM YYYY - HH:mm")}</span>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      return <UnitAction unit={row.original} />;
-    },
   },
 ];

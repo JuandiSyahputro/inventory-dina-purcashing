@@ -4,6 +4,7 @@ import { DataTable } from "@/components/data-table";
 import { redirect } from "next/navigation";
 import { columnProduct } from "./column-product";
 import { columnProductUser } from "./column-product-user";
+// import ProductExport from "@/components/products/admin/product-export";
 
 const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ [key: string]: string | undefined }> }) => {
   const user = await auth();
@@ -23,7 +24,13 @@ const ProductPageOverview = async ({ searchParams }: { searchParams?: Promise<{ 
   return (
     <div className="container p-10 mx-auto">
       <h1 className="mb-5 text-3xl font-bold">Product Page</h1>
-      <DataTable columns={isAdmin ? columnProduct : columnProductUser} dataProps={products.data} fetchData={fetchProductItems} title="product code or name" />
+      <DataTable
+        columns={isAdmin ? columnProduct : columnProductUser}
+        dataProps={products.data}
+        fetchData={fetchProductItems}
+        // elements={<ProductExport />}
+        title="product code or name"
+      />
     </div>
   );
 };

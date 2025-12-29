@@ -5,6 +5,13 @@ import UsersAction from "@/components/users/users-action";
 
 export const columnUser: ColumnDef<UsersTypes>[] = [
   {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return <UsersAction user={row.original} />;
+    },
+  },
+  {
     id: "No.",
     header: "No",
     cell: ({ row }) => <span>{row.index + 1}.</span>,
@@ -26,12 +33,5 @@ export const columnUser: ColumnDef<UsersTypes>[] = [
     accessorKey: "store_name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Store" />,
     cell: ({ row }) => <span>{row.original.store_name ?? "-"}</span>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      return <UsersAction user={row.original} />;
-    },
   },
 ];

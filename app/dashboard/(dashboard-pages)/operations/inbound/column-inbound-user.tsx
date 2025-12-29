@@ -12,6 +12,17 @@ import { Activity } from "react";
 
 export const columnInboundUser: ColumnDef<ProductTypes>[] = [
   {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return (
+        <Activity mode={!row.original.status ? "visible" : "hidden"}>
+          <ProductAction product={row.original} />
+        </Activity>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
@@ -78,16 +89,5 @@ export const columnInboundUser: ColumnDef<ProductTypes>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Updated Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.updatedAt).format("D MMMM YYYY")}</span>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      return (
-        <Activity mode={!row.original.status ? "visible" : "hidden"}>
-          <ProductAction product={row.original} />
-        </Activity>
-      );
-    },
   },
 ];

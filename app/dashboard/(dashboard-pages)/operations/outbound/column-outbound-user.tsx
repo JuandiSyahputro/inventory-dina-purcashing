@@ -12,6 +12,19 @@ import { Activity } from "react";
 
 export const columnOutboundUser: ColumnDef<ProductTypes>[] = [
   {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const isApproved = row.original.status === 4;
+      const isRejected = row.original.status === 5;
+      return (
+        <Activity mode={isApproved || isRejected ? "hidden" : "visible"}>
+          <ProductActionUser product={row.original} />
+        </Activity>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
     cell: ({ row }) => {
@@ -78,18 +91,5 @@ export const columnOutboundUser: ColumnDef<ProductTypes>[] = [
     accessorKey: "updatedAt",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Updated Date" />,
     cell: ({ row }) => <span>{dayjs(row.original.updatedAt).format("D MMMM YYYY")}</span>,
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const isApproved = row.original.status === 4;
-      const isRejected = row.original.status === 5;
-      return (
-        <Activity mode={isApproved || isRejected ? "hidden" : "visible"}>
-          <ProductActionUser product={row.original} />
-        </Activity>
-      );
-    },
   },
 ];
