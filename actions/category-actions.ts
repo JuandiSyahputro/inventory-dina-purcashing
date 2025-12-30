@@ -7,23 +7,14 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getCategories = async (props: FetchDataPropsTypes) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const { limit, offset, search } = props;
 
   const where: Prisma.ProductCategoriesWhereInput = {
     ...(search && {
-      OR: [
-        {
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      ],
+      OR: [{ name: { contains: search, mode: "insensitive" } }],
     }),
   };
+
   try {
     const categories = await prisma.productCategories.findMany({
       where,

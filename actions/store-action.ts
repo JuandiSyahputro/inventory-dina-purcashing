@@ -145,21 +145,11 @@ export const updateStore = async (idStore: string, nameStore: string) => {
 };
 
 export const getStores = async (props: FetchDataPropsTypes) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const { limit, offset, search } = props;
 
   const where: Prisma.StoreWhereInput = {
     ...(search && {
-      OR: [
-        {
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      ],
+      OR: [{ name: { contains: search, mode: "insensitive" } }],
     }),
   };
 

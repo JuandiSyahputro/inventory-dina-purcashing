@@ -10,7 +10,7 @@ const OutboundTable = async <TData,>({ storeName, limit, columns, formAction }: 
     return { data: data as TData[] };
   };
 
-  return <DataTable columns={columns} dataProps={products as TData[]} fetchData={fetchProductItems} elements={formAction} title="product code or name" />;
+  return <DataTable columns={columns!} dataProps={products as TData[]} fetchData={fetchProductItems} elements={formAction} title="product code or name" />;
 };
 
 export default OutboundTable;

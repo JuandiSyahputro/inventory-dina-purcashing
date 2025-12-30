@@ -25,6 +25,9 @@ model Users {
 
   store Store? @relation(fields: [storeId], references: [id], onDelete: SetNull)
 
+  @@index([name])
+  @@index([email])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -84,6 +87,8 @@ model Store {
   Users        Users[]
   productItems ProductItems[]
 
+  @@index([name])
+  @@index([createdAt])
   @@map("store")
 }
 
@@ -94,6 +99,8 @@ model Vendor {
   updatedAt    DateTime       @updatedAt @map("updated_at")
   productItems ProductItems[]
 
+  @@index([name])
+  @@index([createdAt])
   @@map("vendor")
 }
 
@@ -104,6 +111,8 @@ model ProductCategories {
   updatedAt    DateTime       @updatedAt @map("updated_at")
   productItems ProductItems[]
 
+  @@index([name])
+  @@index([createdAt])
   @@map("product_categories")
 }
 
@@ -114,6 +123,8 @@ model ProductUnits {
   updatedAt    DateTime       @updatedAt @map("updated_at")
   productItems ProductItems[]
 
+  @@index([name])
+  @@index([createdAt])
   @@map("product_units")
 }
 
@@ -143,6 +154,10 @@ model ProductItems {
   categories          ProductCategories?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   historyProductItems HistoryProductItem[]
 
+  @@index([name])
+  @@index([productCode])
+  @@index([status])
+  @@index([createdAt])
   @@map("product_items")
 }
 

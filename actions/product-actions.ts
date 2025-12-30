@@ -33,17 +33,12 @@ export const getProductsItems = unstable_cache(
 
       const items = await prisma.productItems.findMany({
         where,
-        include: {
-          unit: { select: { name: true } },
-          store: { select: { name: true } },
-          categories: { select: { name: true } },
-          vendor: { select: { name: true } },
-        },
+        include: { unit: { select: { name: true } }, store: { select: { name: true } }, categories: { select: { name: true } }, vendor: { select: { name: true } } },
         orderBy: isByOrderStatus ? [{ status: "asc" }, { createdAt: "desc" }] : [{ createdAt: "desc" }],
         take: pageSize,
         skip: page,
       });
-      console.log({ items });
+
       return {
         data: formatMappingProducts(items as ProductTypes[]),
       };

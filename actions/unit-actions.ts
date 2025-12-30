@@ -7,20 +7,11 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getUnits = async (props: FetchDataPropsTypes) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
   const { limit, offset, search } = props;
 
   const where: Prisma.ProductUnitsWhereInput = {
     ...(search && {
-      OR: [
-        {
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      ],
+      OR: [{ name: { contains: search, mode: "insensitive" } }],
     }),
   };
 

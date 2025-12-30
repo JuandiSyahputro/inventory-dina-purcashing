@@ -59,41 +59,32 @@ export const addUsers = async (FormData: FormData) => {
 };
 
 export const getUsers = async (props: FetchDataPropsTypes) => {
-  const session = await auth();
-  if (!session || !session.user) redirect("/auth/login");
-
   const { limit, offset, search } = props;
 
   const where: Prisma.UsersWhereInput = {
     ...(search && {
-      OR: [
-        {
-          name: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-        {
-          email: {
-            contains: search,
-            mode: "insensitive",
-          },
-        },
-      ],
+      OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }],
     }),
   };
 
   try {
     const users = await prisma.users.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        storeId: true,
+        createdAt: true,
+        updatedAt: true,
         store: { select: { name: true } },
       },
       ...(limit && { take: Number(limit) }),
       ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
-
+    console.log(users);
     return { data: users };
   } catch (error) {
     console.log(error);

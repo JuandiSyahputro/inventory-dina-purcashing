@@ -15,7 +15,7 @@ declare global {
   interface TableServerProps<TData> {
     storeName?: string;
     limit?: number;
-    columns: ColumnDef<TData>[];
+    columns?: ColumnDef<TData>[];
     formAction?: React.ReactNode;
   }
 }
