@@ -31,6 +31,12 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
   /* ----------------------------------------------------
        Skeleton-aware columns (v8)
     ---------------------------------------------------- */
+  // const rows = useMemo(() => {
+  //   if (isPending) {
+  //     return Array.from({ length: paginateCursor.limit }, () => ({} as TData));
+  //   }
+  //   return data;
+  // }, [isPending, data, paginateCursor.limit]);
 
   const tableColumns = useMemo<ColumnDef<TData, TValue>[]>(() => {
     if (!isPending) return columns;
@@ -148,7 +154,7 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="h-7">
                   {row.getVisibleCells().map((cell) => {
                     return <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>;
                   })}
