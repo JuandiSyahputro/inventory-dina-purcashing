@@ -11,11 +11,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useSearchFetch } from "@/hooks/use-search-fetch";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData, elements }: DataTableProps<TData, TValue>) {
-  const { push } = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const limitSize = searchParams?.get("limit");
   const [isPending, startTransition] = useTransition();
@@ -108,7 +106,7 @@ export function DataTable<TData, TValue>({ columns, title, dataProps, fetchData,
 
       setData(res.data);
       setPaginateCursor((prev) => ({ ...prev, limit }));
-      push(`${pathname}?limit=${limit}`);
+      // push(`${pathname}?limit=${limit}`);
     });
   };
 
