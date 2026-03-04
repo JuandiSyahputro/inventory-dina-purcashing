@@ -1,6 +1,8 @@
 "use server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
+import { generateCacheKey } from "@/lib/utils";
 import { AddStoreSchema } from "@/schema/store-schema";
 import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -145,15 +147,23 @@ export const updateStore = async (idStore: string, nameStore: string) => {
 };
 
 export const getStores = async (props: FetchDataPropsTypes) => {
-  const { limit, offset, search } = props;
-
-  const where: Prisma.StoreWhereInput = {
-    ...(search && {
-      OR: [{ name: { contains: search, mode: "insensitive" } }],
-    }),
-  };
+  const cacheKey = generateCacheKey({ typeCache: "stores", queryParams: props });
 
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return dataCached;
+    }
+
+    const { limit, offset, search } = props;
+
+    const where: Prisma.StoreWhereInput = {
+      ...(search && {
+        OR: [{ name: { contains: search, mode: "insensitive" } }],
+      }),
+    };
+
     const stores = await prisma.store.findMany({
       where,
       ...(limit && { take: Number(limit) }),
@@ -163,7 +173,14 @@ export const getStores = async (props: FetchDataPropsTypes) => {
         name: true,
       },
     });
-    return { data: stores };
+
+    const result = {
+      data: stores,
+    };
+
+    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

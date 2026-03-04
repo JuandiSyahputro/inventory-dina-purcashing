@@ -2,6 +2,7 @@ import { Role } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
+import * as XLSX from "xlsx";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -83,3 +84,24 @@ export function renderValueKey(value: unknown): string {
 export function filterExcludedKeys<T extends Record<string, unknown>>(obj: T, excluded: (keyof T | string)[]) {
   return Object.keys(obj).filter((key) => !excluded.includes(key));
 }
+
+export const exportToExcel = ({ data, fileName }: { data: ProductTypes[]; fileName: string }) => {
+  const worksheet = XLSX.utils.json_to_sheet(data);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+  // Write the workbook and trigger the file download
+  XLSX.writeFile(workbook, `${fileName}.xlsx`);
+};
+
+export const generateCacheKey = (props: GetProductItemTypes) => {
+  const {
+    typeCache = "products",
+    store_name = "all",
+    status = "all",
+    isByOrderStatus = false,
+    queryParams: { limit = 10, offset = 0, search = "" },
+  } = props;
+
+  return `inventory:prod:${typeCache}:${store_name}:${status}:${isByOrderStatus}:${limit}:${offset}:${search}`;
+};

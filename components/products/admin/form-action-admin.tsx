@@ -379,7 +379,7 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="inStock">In Stock</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" placeholder="1,2,3, or etc..." />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" min={0} placeholder="1,2,3, or etc..." />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

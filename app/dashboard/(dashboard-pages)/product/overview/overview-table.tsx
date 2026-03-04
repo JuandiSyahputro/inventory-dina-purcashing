@@ -3,8 +3,8 @@ import { auth } from "@/auth";
 import { DataTable } from "@/components/data-table";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import { columnProductUser } from "./column-product-user";
 import { columnProduct } from "./column-product";
+import { columnProductUser } from "./column-product-user";
 
 const OverviewTable = async <TData,>({ storeName, limit }: TableServerProps<TData>) => {
   await connection();
@@ -23,7 +23,7 @@ const OverviewTable = async <TData,>({ storeName, limit }: TableServerProps<TDat
     return { data: data as ProductTypes[] };
   };
 
-  return <DataTable columns={isAdmin ? columnProduct : columnProductUser} dataProps={products as ProductTypes[]} fetchData={fetchProductItems} title="product code or name" />;
+  return <DataTable columns={isAdmin ? columnProduct : columnProductUser} dataProps={products as ProductTypes[]} fetchData={fetchProductItems} elements={null} title="product code or name" />;
 };
 
 export default OverviewTable;

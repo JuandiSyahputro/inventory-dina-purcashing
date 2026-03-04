@@ -2,6 +2,8 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
+import { generateCacheKey } from "@/lib/utils";
 import { RegisterSchema } from "@/schema/auth-schema";
 import { ChangePassSchema, DeletedSchema, EditUserSchema } from "@/schema/users-schema";
 import { Prisma, Role } from "@prisma/client";
@@ -59,15 +61,21 @@ export const addUsers = async (FormData: FormData) => {
 };
 
 export const getUsers = async (props: FetchDataPropsTypes) => {
-  const { limit, offset, search } = props;
-
-  const where: Prisma.UsersWhereInput = {
-    ...(search && {
-      OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }],
-    }),
-  };
-
+  const cacheKey = generateCacheKey({ typeCache: "users", queryParams: props });
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return dataCached;
+    }
+    const { limit, offset, search } = props;
+
+    const where: Prisma.UsersWhereInput = {
+      ...(search && {
+        OR: [{ name: { contains: search, mode: "insensitive" } }, { email: { contains: search, mode: "insensitive" } }],
+      }),
+    };
+
     const users = await prisma.users.findMany({
       where,
       select: {
@@ -84,8 +92,14 @@ export const getUsers = async (props: FetchDataPropsTypes) => {
       ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
-    console.log(users);
-    return { data: users };
+
+    const result = {
+      data: users,
+    };
+
+    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

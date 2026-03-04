@@ -1,28 +1,43 @@
 "use server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
+import { generateCacheKey } from "@/lib/utils";
 import { DeletedUnitSchema, UnitSchema } from "@/schema/units-schema";
 import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getUnits = async (props: FetchDataPropsTypes) => {
-  const { limit, offset, search } = props;
-
-  const where: Prisma.ProductUnitsWhereInput = {
-    ...(search && {
-      OR: [{ name: { contains: search, mode: "insensitive" } }],
-    }),
-  };
-
+  const cacheKey = generateCacheKey({ typeCache: "units", queryParams: props });
   try {
-    const categories = await prisma.productUnits.findMany({
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return dataCached;
+    }
+
+    const { limit, offset, search } = props;
+
+    const where: Prisma.ProductUnitsWhereInput = {
+      ...(search && {
+        OR: [{ name: { contains: search, mode: "insensitive" } }],
+      }),
+    };
+    const units = await prisma.productUnits.findMany({
       where,
       ...(limit && { take: Number(limit) }),
       ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
-    return { data: categories };
+
+    const result = {
+      data: units,
+    };
+
+    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

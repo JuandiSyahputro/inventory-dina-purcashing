@@ -35,3 +35,14 @@ export const ProductOutSchema = z.object({
 export const DeletedProductSchema = z.object({
   id: z.string().min(3, "Id must be at least 3 characters"),
 });
+
+export const ProductExportSchema = z.object({
+  status: z.string().min(1, "Status must be at least 1 characters"),
+  dateRange: z
+    .object({
+      from: z.date(),
+      to: z.date(),
+    })
+    .refine((val) => val.from && val.to, { message: "Please select a date range" }),
+  transactionType: z.string().min(1, "Transaction type must be at least 1 characters"),
+});

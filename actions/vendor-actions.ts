@@ -1,28 +1,43 @@
 "use server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
+import { generateCacheKey } from "@/lib/utils";
 import { DeletedVendorSchema, VendorSchema } from "@/schema/vendor-schema";
 import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getVendors = async (props: FetchDataPropsTypes) => {
-  const { limit, offset, search } = props;
-
-  const where: Prisma.VendorWhereInput = {
-    ...(search && {
-      OR: [{ name: { contains: search, mode: "insensitive" } }],
-    }),
-  };
-
+  const cacheKey = generateCacheKey({ typeCache: "vendors", queryParams: props });
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return dataCached;
+    }
+
+    const { limit, offset, search } = props;
+
+    const where: Prisma.VendorWhereInput = {
+      ...(search && {
+        OR: [{ name: { contains: search, mode: "insensitive" } }],
+      }),
+    };
     const vendors = await prisma.vendor.findMany({
       where,
       ...(limit && { take: Number(limit) }),
       ...(offset && { skip: Number(offset) }),
       orderBy: { createdAt: "desc" },
     });
-    return { data: vendors };
+
+    const result = {
+      data: vendors,
+    };
+
+    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

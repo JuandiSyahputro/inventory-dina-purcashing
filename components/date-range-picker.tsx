@@ -12,7 +12,7 @@ export default function DateRangePicker({ value, setValue, ariaInvalid, ...props
     <div className="flex flex-col gap-3">
       <Popover>
         <PopoverTrigger asChild>
-          <Button aria-invalid={ariaInvalid} variant="outline" id="dates" className="w-56 justify-between font-normal">
+          <Button aria-invalid={ariaInvalid} variant="outline" id="dates" className="w-full justify-between font-normal">
             {value?.from && value?.to ? `${value.from.toLocaleDateString()} - ${value.to.toLocaleDateString()}` : "Select date"}
             <ChevronDownIcon />
           </Button>

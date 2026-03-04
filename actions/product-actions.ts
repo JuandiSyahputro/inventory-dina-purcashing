@@ -1,7 +1,8 @@
 "use server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { formatMappingProducts } from "@/lib/utils";
+import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
+import { generateCacheKey, formatMappingProducts } from "@/lib/utils";
 import { DeletedProductSchema, ProductAdminSchema, ProductOutSchema, ProductRejectedSchema, ProductUserSchema } from "@/schema/product-schema";
 import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
@@ -9,16 +10,23 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getProductsItems = async (props: GetProductItemTypes) => {
-  const {
-    store_name,
-    status,
-    isByOrderStatus = false,
-    queryParams: { limit = 10, offset = 0, search },
-  } = props;
-  const pageSize = Number(limit);
-  const page = Number(offset);
+  const cacheKey = generateCacheKey(props);
 
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return dataCached;
+    }
+
+    const {
+      store_name,
+      status,
+      isByOrderStatus = false,
+      queryParams: { limit = 10, offset = 0, search },
+    } = props;
+    const pageSize = Number(limit);
+    const page = Number(offset);
     const stores = store_name && store_name.toLowerCase() !== "all" ? store_name.split(",").map((s) => s.trim()) : undefined;
 
     const whereBase: Prisma.ProductItemsWhereInput = {
@@ -37,6 +45,35 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
       skip: page,
     });
 
+    const result = {
+      data: formatMappingProducts(items as ProductTypes[]),
+    };
+
+    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+
+    return result;
+  } catch (error) {
+    console.error("Error fetching product items:", error);
+    throw error;
+  }
+};
+
+export const getProductItemsExport = async ({ status, dateRange }: { status: number | string | number[]; dateRange: { from: Date; to: Date } }) => {
+  console.log(status);
+  console.log(dateRange);
+  try {
+    const items = await prisma.productItems.findMany({
+      where: {
+        ...(Array.isArray(status) && status.length > 1 ? { status: { in: status } } : { status: Number(status) }),
+        createdAt: {
+          gte: new Date(dateRange.from),
+          lte: new Date(dateRange.to),
+        },
+      },
+      include: { unit: { select: { name: true } }, store: { select: { name: true } }, categories: { select: { name: true } }, vendor: { select: { name: true } } },
+      orderBy: [{ createdAt: "desc" }],
+    });
+    console.log(items);
     return {
       data: formatMappingProducts(items as ProductTypes[]),
     };

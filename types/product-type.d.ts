@@ -45,6 +45,7 @@ declare global {
   }
 
   interface GetProductItemTypes {
+    typeCache?: string;
     store_name?: string;
     isByOrderStatus?: boolean;
     status?: number | string | number[];
