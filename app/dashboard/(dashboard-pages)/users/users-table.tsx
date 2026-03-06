@@ -3,7 +3,7 @@ import { getUsers } from "@/actions/users-action";
 import { auth } from "@/auth";
 import { DataTable } from "@/components/data-table";
 import FormActionUsers from "@/components/users/form-action";
-import { Store } from "@prisma/client";
+import { Store, Users } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
@@ -16,13 +16,13 @@ const UsersTable = async <TData,>({ limit, columns }: TableServerProps<TData>) =
   const { data: users } = await getUsers({ limit: limit ? Number(limit) : 10, offset: 0 });
 
   const key = dataStores.filter((store: Store) => store.id === dataStores[0].id)[0].id;
-  const formatUsers = users.map((user: UsersTypes) => ({
+  const formatUsers = users.map((user: Users) => ({
     id: user.id,
     name: user.name,
     email: user.email || "",
     role: user.role,
     store_id: user.storeId || "",
-    store_name: user.store_name || null,
+    store_name: dataStores.filter((store: Store) => store.id === user.storeId)[0]?.name || null,
     data_stores: { stores: dataStores },
   }));
 

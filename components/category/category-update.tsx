@@ -90,7 +90,7 @@ const CategoryUpdate = ({ category, openDialog, setOpenDialog }: CategoryUpdated
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Category Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter category name...." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter category name...." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

@@ -1,8 +1,8 @@
 "use server";
 import { auth } from "@/auth";
+import { generateCacheKey, getCache, invalidateCache, setCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
-import { generateCacheKey, formatMappingProducts } from "@/lib/utils";
+import { formatMappingProducts } from "@/lib/utils";
 import { DeletedProductSchema, ProductAdminSchema, ProductOutSchema, ProductRejectedSchema, ProductUserSchema } from "@/schema/product-schema";
 import { Prisma } from "@prisma/client";
 import dayjs from "dayjs";
@@ -10,10 +10,10 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getProductsItems = async (props: GetProductItemTypes) => {
-  const cacheKey = generateCacheKey(props);
+  const cacheKey = await generateCacheKey(props);
 
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await getCache(cacheKey);
     if (cached) {
       const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
       return dataCached;
@@ -49,7 +49,7 @@ export const getProductsItems = async (props: GetProductItemTypes) => {
       data: formatMappingProducts(items as ProductTypes[]),
     };
 
-    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+    await setCache(cacheKey, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -118,6 +118,7 @@ export const addProductItemsUser = async (formData: FormData) => {
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -189,6 +190,7 @@ export const addProductItemsAdmin = async (formData: FormData) => {
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -273,6 +275,7 @@ export const updateProductItemUser = async (id: string, formData: FormData) => {
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -360,6 +363,7 @@ export const updateProductItemAdmin = async (id: string, typeAction: string, for
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -438,6 +442,7 @@ export const rejectedProductItemAdmin = async (id: string, formData: FormData) =
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -520,6 +525,7 @@ export const addUpdateOutboundItemUser = async (formData: FormData) => {
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -598,6 +604,7 @@ export const approveRejectedOutboundProductItemAdmin = async (id: string, type: 
     }
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };
@@ -646,6 +653,7 @@ export const deleteProduct = async (id: string) => {
     });
 
     if (response) {
+      await invalidateCache("products");
       return {
         success: true,
       };

@@ -130,7 +130,7 @@ const FormOutboundUpdateUser = ({ product, openDialog, setOpenDialog }: ProductU
               defaultValue={product.id}
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalide=true]:border-destructive">
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
                   <ComboboxField listTypes={dataList ?? []} valueProps={field.value} setValueProps={field.onChange} isLoading={pendingUsers} onValueChange={(v) => setSearchData(String(v))} isDisabled />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

@@ -1,17 +1,16 @@
 "use server";
 import { auth } from "@/auth";
+import { generateCacheKey, getCache, invalidateCache, setCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
-import { generateCacheKey } from "@/lib/utils";
 import { DeletedVendorSchema, VendorSchema } from "@/schema/vendor-schema";
 import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getVendors = async (props: FetchDataPropsTypes) => {
-  const cacheKey = generateCacheKey({ typeCache: "vendors", queryParams: props });
+  const cacheKey = await generateCacheKey({ typeCache: "vendors", queryParams: props });
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await getCache(cacheKey);
     if (cached) {
       const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
       return dataCached;
@@ -35,7 +34,7 @@ export const getVendors = async (props: FetchDataPropsTypes) => {
       data: vendors,
     };
 
-    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+    await setCache(cacheKey, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -80,6 +79,7 @@ export const addVendor = async (formData: FormData) => {
     });
 
     if (response) {
+      await invalidateCache("vendors");
       return {
         success: true,
       };
@@ -129,7 +129,7 @@ export const updateVendor = async (id: string, formData: FormData) => {
   try {
     const findVendor = await prisma.vendor.findFirst({
       where: {
-        id,
+        OR: [{ id }, { name }],
       },
     });
 
@@ -140,13 +140,7 @@ export const updateVendor = async (id: string, formData: FormData) => {
       };
     }
 
-    const findVendorName = await prisma.vendor.findFirst({
-      where: {
-        name,
-      },
-    });
-
-    if (findVendorName) {
+    if (findVendor.name === name) {
       return {
         message: `${name} already exists`,
         success: false,
@@ -164,6 +158,7 @@ export const updateVendor = async (id: string, formData: FormData) => {
     });
 
     if (response) {
+      await invalidateCache("vendors");
       return {
         success: true,
       };
@@ -215,6 +210,7 @@ export const deleteVendor = async (id: string) => {
     });
 
     if (response) {
+      await invalidateCache("vendors");
       return {
         success: true,
       };

@@ -58,9 +58,7 @@ const VendorUpdate = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes)
         });
 
         refresh();
-        setTimeout(() => {
-          setOpenDialog((prev) => ({ ...prev, updatedVendor: false }));
-        }, 500);
+        setTimeout(() => setOpenDialog((prev) => ({ ...prev, updatedVendor: false })), 500);
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");
@@ -90,7 +88,7 @@ const VendorUpdate = ({ vendor, openDialog, setOpenDialog }: VendorUpdatedTypes)
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Vendor Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter vendor name here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter vendor name here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

@@ -96,7 +96,7 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -107,7 +107,7 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">In Stock</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="name" placeholder="1,2,3, or etc..." />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="name" placeholder="1,2,3, or etc..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -118,7 +118,7 @@ const FormActionProductUser = ({ storeId }: { storeId: string }) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
-                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20 aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

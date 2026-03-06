@@ -44,7 +44,7 @@ const UserDeleted = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
         });
 
         refresh();
-        setOpenDialog((prev) => ({ ...prev, deletedUser: false }));
+        setTimeout(() => setOpenDialog((prev) => ({ ...prev, deletedUser: false })), 500);
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");

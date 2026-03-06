@@ -65,7 +65,7 @@ const UserChangePass = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) =
 
         form.reset();
         refresh();
-        setOpenDialog((prev) => ({ ...prev, changePassword: false }));
+        setTimeout(() => setOpenDialog((prev) => ({ ...prev, changePassword: false })), 500);
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");

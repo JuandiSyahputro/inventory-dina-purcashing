@@ -1,8 +1,7 @@
 "use server";
 import { auth } from "@/auth";
+import { generateCacheKey, getCache, invalidateCache, setCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
-import { generateCacheKey } from "@/lib/utils";
 import { AddStoreSchema } from "@/schema/store-schema";
 import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -42,6 +41,7 @@ export const addStore = async (nameStore: string) => {
     });
 
     if (response) {
+      await invalidateCache("stores");
       return {
         success: true,
       };
@@ -116,6 +116,7 @@ export const updateStore = async (idStore: string, nameStore: string) => {
       };
     }
 
+    await invalidateCache("stores");
     return {
       success: true,
     };
@@ -147,10 +148,10 @@ export const updateStore = async (idStore: string, nameStore: string) => {
 };
 
 export const getStores = async (props: FetchDataPropsTypes) => {
-  const cacheKey = generateCacheKey({ typeCache: "stores", queryParams: props });
+  const cacheKey = await generateCacheKey({ typeCache: "stores", queryParams: props });
 
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await getCache(cacheKey);
     if (cached) {
       const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
       return dataCached;
@@ -178,7 +179,7 @@ export const getStores = async (props: FetchDataPropsTypes) => {
       data: stores,
     };
 
-    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+    await setCache(cacheKey, JSON.stringify(result));
 
     return result;
   } catch (error) {

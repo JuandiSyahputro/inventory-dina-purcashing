@@ -36,7 +36,7 @@ const UserUpdate = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
     const formData = new FormData();
     formData.append("name", data.name);
     formData.append("email", data.email ?? "");
-    formData.append("storeId", data.storeId);
+    formData.append("storeId", data.storeId ?? "");
     formData.append("role", data.role);
 
     startTransition(async () => {
@@ -70,7 +70,8 @@ const UserUpdate = ({ user, openDialog, setOpenDialog }: UserUpdatedTypes) => {
 
         form.reset();
         refresh();
-        setOpenDialog((prev) => ({ ...prev, updatedUser: false }));
+
+        setTimeout(() => setOpenDialog((prev) => ({ ...prev, updatedUser: false })), 500);
       } catch (error) {
         console.log(error);
         toast.error("Something went wrong!");

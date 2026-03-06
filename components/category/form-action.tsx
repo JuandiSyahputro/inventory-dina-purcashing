@@ -87,7 +87,7 @@ const FormActionCategory = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Category Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Alat Elektronik or etc..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Alat Elektronik or etc..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

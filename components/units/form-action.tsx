@@ -87,7 +87,7 @@ const FormActionUnits = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Unit Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="kg, pcs, or etc..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="kg, pcs, or etc..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

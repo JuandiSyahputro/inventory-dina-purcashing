@@ -15,7 +15,7 @@ import { useSearchFetch } from "@/hooks/use-search-fetch";
 import { ProductAdminSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { memo, useEffect, useRef, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -216,6 +216,7 @@ const FormActionProductAdmin = () => {
     },
     onSuccess: (data) => setDataList((p) => ({ ...p, units: data })),
   });
+
   return (
     <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogTrigger asChild>
@@ -236,7 +237,7 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="prCode">PR Code</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="prCode" placeholder="Enter your PR code here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="prCode" placeholder="Enter your PR code here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -247,12 +248,12 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="pCode">Product Code</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="pCode" placeholder="Enter your product code here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="pCode" placeholder="Enter your product code here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
-            <Controller
+            {/* <Controller
               name="productSubCode"
               control={form.control}
               render={({ field, fieldState }) => (
@@ -262,14 +263,14 @@ const FormActionProductAdmin = () => {
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
-            />
+            /> */}
             <Controller
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -278,7 +279,7 @@ const FormActionProductAdmin = () => {
               name="storeId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Store Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.stores ?? []}
@@ -300,7 +301,7 @@ const FormActionProductAdmin = () => {
               name="categoryId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Category Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.categories ?? []}
@@ -322,7 +323,7 @@ const FormActionProductAdmin = () => {
               name="unitId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Unit Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.units ?? []}
@@ -344,7 +345,7 @@ const FormActionProductAdmin = () => {
               name="vendorId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Vendor Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.vendors ?? []}
@@ -366,9 +367,9 @@ const FormActionProductAdmin = () => {
               name="price"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel htmlFor="price">Price</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="price" placeholder="Enter your product price here..." />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="price" placeholder="Enter your product price here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -379,7 +380,7 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="inStock">In Stock</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" min={0} placeholder="1,2,3, or etc..." />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" min={0} placeholder="1,2,3, or etc..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -390,7 +391,7 @@ const FormActionProductAdmin = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
-                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20 aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -412,4 +413,4 @@ const FormActionProductAdmin = () => {
   );
 };
 
-export default FormActionProductAdmin;
+export default memo(FormActionProductAdmin);

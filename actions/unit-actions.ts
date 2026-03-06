@@ -1,17 +1,16 @@
 "use server";
 import { auth } from "@/auth";
+import { generateCacheKey, getCache, invalidateCache, setCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
-import { generateCacheKey } from "@/lib/utils";
 import { DeletedUnitSchema, UnitSchema } from "@/schema/units-schema";
 import { Prisma } from "@prisma/client";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 
 export const getUnits = async (props: FetchDataPropsTypes) => {
-  const cacheKey = generateCacheKey({ typeCache: "units", queryParams: props });
+  const cacheKey = await generateCacheKey({ typeCache: "units", queryParams: props });
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await getCache(cacheKey);
     if (cached) {
       const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
       return dataCached;
@@ -35,7 +34,7 @@ export const getUnits = async (props: FetchDataPropsTypes) => {
       data: units,
     };
 
-    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+    await setCache(cacheKey, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -80,6 +79,7 @@ export const addUnit = async (formData: FormData) => {
     });
 
     if (response) {
+      await invalidateCache("units");
       return {
         success: true,
       };
@@ -129,7 +129,7 @@ export const updateUnit = async (id: string, formData: FormData) => {
   try {
     const findUnit = await prisma.productUnits.findFirst({
       where: {
-        id,
+        OR: [{ id }, { name }],
       },
     });
 
@@ -140,13 +140,7 @@ export const updateUnit = async (id: string, formData: FormData) => {
       };
     }
 
-    const findUnitName = await prisma.productUnits.findFirst({
-      where: {
-        name,
-      },
-    });
-
-    if (findUnitName) {
+    if (findUnit.name === name) {
       return {
         message: `${name} already exists`,
         success: false,
@@ -164,6 +158,7 @@ export const updateUnit = async (id: string, formData: FormData) => {
     });
 
     if (response) {
+      await invalidateCache("units");
       return {
         success: true,
       };
@@ -215,6 +210,7 @@ export const deleteUnit = async (id: string) => {
     });
 
     if (response) {
+      await invalidateCache("units");
       return {
         success: true,
       };

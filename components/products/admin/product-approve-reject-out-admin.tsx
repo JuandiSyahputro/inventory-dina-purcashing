@@ -90,7 +90,7 @@ const ProductApproveRejectOutAdmin = ({ product, type = "approvedOut", openDialo
           <DialogTitle>{type === "approvedOut" ? "Approve" : "Reject"} Product</DialogTitle>
           <DialogDescription>{type === "approvedOut" ? "Approve" : "Reject"} the product here. Click save when you&apos;re done.</DialogDescription>
         </DialogHeader>
-        <form id="form-approve-admin" className="max-h-[500px] overflow-y-auto" onSubmit={form.handleSubmit(onSubmit)}>
+        <form id="form-approve-admin" className="max-h-[400px] overflow-y-auto" onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup className="py-3">
             <Controller
               name="remarks"
@@ -98,7 +98,7 @@ const ProductApproveRejectOutAdmin = ({ product, type = "approvedOut", openDialo
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
-                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20 aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

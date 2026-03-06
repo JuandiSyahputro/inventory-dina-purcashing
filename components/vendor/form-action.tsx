@@ -89,7 +89,7 @@ const FormActionVendor = () => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Vendor Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter vendor name here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter vendor name here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

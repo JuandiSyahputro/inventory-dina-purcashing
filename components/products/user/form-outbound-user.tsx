@@ -133,17 +133,17 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={form.handleSubmit(onSubmit)} className="max-h-[400px] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add Out Product</DialogTitle>
-            <DialogDescription>Make a out product here. Click save when you&apos;re done.</DialogDescription>
-          </DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Add Out Product</DialogTitle>
+          <DialogDescription>Make a out product here. Click save when you&apos;re done.</DialogDescription>
+        </DialogHeader>
+        <form id="form-add-outbound" onSubmit={form.handleSubmit(onSubmit)} className="max-h-[500px] overflow-y-auto">
           <FieldGroup className="py-3">
             <Controller
               name="id"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
                   <ComboboxField listTypes={dataList ?? []} valueProps={field.value} setValueProps={field.onChange} isLoading={pendingUsers} onValueChange={(v) => setSearchData(String(v))} />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -157,7 +157,7 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="stockout">Out Stock</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="stockout" placeholder="1,2,3, or etc..." min={1} />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="stockout" placeholder="1,2,3, or etc..." min={1} className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -168,23 +168,23 @@ const FormOutboundUser = ({ storeName }: { storeName: string }) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
-                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20 aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
           </FieldGroup>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button disabled={pending} variant="outline" type="button">
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button disabled={pending} type="submit" className="cursor-pointer bg-custom-primary hover:bg-custom-primary-dark">
-              {pending ? <Spinner /> : "Save"}
-            </Button>
-          </DialogFooter>
         </form>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button disabled={pending} variant="outline" type="button">
+              Cancel
+            </Button>
+          </DialogClose>
+          <Button disabled={pending} type="submit" form="form-add-outbound" className="cursor-pointer bg-custom-primary hover:bg-custom-primary-dark">
+            {pending ? <Spinner /> : "Save"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

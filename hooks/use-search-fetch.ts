@@ -35,7 +35,6 @@ export function useSearchFetch<T>({
 
     startTransition(async () => {
       const result = search ? await fetchSearch(search) : await fetchDefault();
-
       onSuccess(result);
     });
   }, [search, prevSearch, startTransition, fetchSearch, fetchDefault, onSuccess, trigger]);

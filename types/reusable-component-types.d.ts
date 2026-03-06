@@ -3,6 +3,8 @@ declare global {
   interface ComboboxFieldProps {
     listTypes: { id: string; name: string; productCode?: string }[];
     valueProps: string | number;
+    placeholderProps?: string;
+    productCodeProps?: string;
     debounce?: number;
     isLoading?: boolean;
     isDisabled?: boolean;

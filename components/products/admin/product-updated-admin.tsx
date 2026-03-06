@@ -18,10 +18,12 @@ import { ProductAdminSchema } from "@/schema/product-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { useRouter } from "next/navigation";
-import { memo, useEffect, useState, useTransition } from "react";
+import { memo, useCallback, useEffect, useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+
+type SearchKeys = "vendors" | "categories" | "units";
 
 const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDialog }: ProductUpdatedAdminTypes) => {
   const { refresh } = useRouter();
@@ -56,6 +58,17 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
       storeId: product.storeId ?? "",
     },
   });
+
+  const handleOpenDialog = useCallback(() => {
+    setOpenDialog((prev) => ({ ...prev, ...(type === "approved" ? { approvedProduct: false } : { updatedProduct: false }) }));
+  }, [setOpenDialog, type]);
+
+  const handleSearch = useCallback((key: SearchKeys, value: string) => {
+    setDataSearch((p) => ({
+      ...p,
+      [key]: value,
+    }));
+  }, []);
 
   const onSubmit = async (data: z.infer<typeof ProductAdminSchema>) => {
     const formData = new FormData();
@@ -106,20 +119,21 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
 
   useEffect(() => {
     if (!openDialog) return;
-
-    form.reset({
-      prCode: product.prCode ?? "",
-      productCode: product.productCode ?? "",
-      productSubCode: product.productSubCode ?? "",
-      price: String(product.price ?? 0),
-      remarks: product.remarks ?? "",
-      name: product.name ?? "",
-      stockIn: String(product.stockIn ?? 0),
-      unitId: product.unitId ?? "",
-      vendorId: product.vendorId ?? "",
-      categoryId: product.categoryId ?? "",
-      storeId: product.storeId ?? "",
-    });
+    startTransition(() =>
+      form.reset({
+        prCode: product.prCode ?? "",
+        productCode: product.productCode ?? "",
+        productSubCode: product.productSubCode ?? "",
+        price: String(product.price ?? 0),
+        remarks: product.remarks ?? "",
+        name: product.name ?? "",
+        stockIn: String(product.stockIn ?? 0),
+        unitId: product.unitId ?? "",
+        vendorId: product.vendorId ?? "",
+        categoryId: product.categoryId ?? "",
+        storeId: product.storeId ?? "",
+      })
+    );
   }, [product, form, openDialog]);
 
   useSearchFetch({
@@ -169,7 +183,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
   });
 
   return (
-    <Dialog open={openDialog} onOpenChange={() => setOpenDialog((prev) => ({ ...prev, ...(type === "approved" ? { approvedProduct: false } : { updatedProduct: false }) }))}>
+    <Dialog open={openDialog} onOpenChange={handleOpenDialog}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{type === "approved" ? "Approve" : "Update"} Product</DialogTitle>
@@ -183,7 +197,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="prCode">PR Code</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="prCode" placeholder="Enter your PR code here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="prCode" placeholder="Enter your PR code here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -194,29 +208,29 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="pCode">Product Code</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="pCode" placeholder="Enter your product code here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="pCode" placeholder="Enter your product code here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
             />
-            <Controller
+            {/* <Controller
               name="productSubCode"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="subCode">Product Sub Code</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="subCode" placeholder="Enter your product code here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="subCode" placeholder="Enter your product code here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
-            />
+            /> */}
             <Controller
               name="name"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Product Name</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Enter your product name here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -225,19 +239,16 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               name="categoryId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Category Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.categories ?? []}
                     valueProps={field.value}
+                    placeholderProps={product.categoryName}
+                    productCodeProps={product.productCode}
                     setValueProps={field.onChange}
                     isLoading={pendingCategories}
-                    onValueChange={(v) =>
-                      setDataSearch((p) => ({
-                        ...p,
-                        categories: String(v),
-                      }))
-                    }
+                    onValueChange={(v) => handleSearch("categories", String(v))}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -247,19 +258,16 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               name="unitId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Unit Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.units ?? []}
                     valueProps={field.value}
+                    placeholderProps={product.unitName}
+                    productCodeProps={product.productCode}
                     setValueProps={field.onChange}
                     isLoading={pendingUnits}
-                    onValueChange={(v) =>
-                      setDataSearch((p) => ({
-                        ...p,
-                        units: String(v),
-                      }))
-                    }
+                    onValueChange={(v) => handleSearch("units", String(v))}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -269,19 +277,16 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               name="vendorId"
               control={form.control}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
+                <Field data-invalid={fieldState.invalid} className="data-[invalid=true]:border-destructive">
                   <FieldLabel>Vendor Name</FieldLabel>
                   <ComboboxField
                     listTypes={dataList?.vendors ?? []}
                     valueProps={field.value}
+                    placeholderProps={product.vendorName}
+                    productCodeProps={product.productCode}
                     setValueProps={field.onChange}
                     isLoading={pendingVendors}
-                    onValueChange={(v) =>
-                      setDataSearch((p) => ({
-                        ...p,
-                        vendors: String(v),
-                      }))
-                    }
+                    onValueChange={(v) => handleSearch("vendors", String(v))}
                   />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
@@ -293,7 +298,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="price">Price</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="price" placeholder="Enter your product price here..." />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="price" placeholder="Enter your product price here..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -304,7 +309,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="inStock">In Stock</FieldLabel>
-                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" placeholder="1,2,3, or etc..." />
+                  <Input type="number" aria-invalid={fieldState.invalid} {...field} id="inStock" placeholder="1,2,3, or etc..." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -315,7 +320,7 @@ const ProductUpdatedAdmin = ({ product, type = "approved", openDialog, setOpenDi
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="remarks">Remarks</FieldLabel>
-                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20" />
+                  <Textarea aria-invalid={fieldState.invalid} {...field} placeholder="Type your remarks here." id="remarks" className="min-h-20 aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}

@@ -1,7 +1,7 @@
 import { Role } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
 import dayjs from "dayjs";
+import { twMerge } from "tailwind-merge";
 import * as XLSX from "xlsx";
 
 export function cn(...inputs: ClassValue[]) {
@@ -92,16 +92,4 @@ export const exportToExcel = ({ data, fileName }: { data: ProductTypes[]; fileNa
 
   // Write the workbook and trigger the file download
   XLSX.writeFile(workbook, `${fileName}.xlsx`);
-};
-
-export const generateCacheKey = (props: GetProductItemTypes) => {
-  const {
-    typeCache = "products",
-    store_name = "all",
-    status = "all",
-    isByOrderStatus = false,
-    queryParams: { limit = 10, offset = 0, search = "" },
-  } = props;
-
-  return `inventory:prod:${typeCache}:${store_name}:${status}:${isByOrderStatus}:${limit}:${offset}:${search}`;
 };

@@ -22,16 +22,8 @@ export const RegisterSchema = z
       .trim()
       .min(5, "Name must be at least 5 characters")
       .refine((val) => !/\s/.test(val), { message: "Name must not contain spaces" }),
-    storeId: z
-      .string({
-        error: (value) => (value.input === "" || value.input === undefined ? "Store is required" : "Invalid store"),
-      })
-      .min(3, "Store must be required"),
-    role: z
-      .string({
-        error: (value) => (value.input === "" || value.input === undefined ? "Role is required" : "Invalid role"),
-      })
-      .min(3, "Role must be required"),
+    storeId: z.string().optional().or(z.literal("")),
+    role: z.enum(["SUPERADMIN", "ADMIN", "USER", "GUEST"]).or(z.string().min(1, "Role must be required")),
     password: z
       .string({
         error: (value) => (value.input === "" || value.input === undefined ? "Password is required" : "Invalid password"),
@@ -43,7 +35,22 @@ export const RegisterSchema = z
       })
       .min(6, "Password must be at least 6 characters"),
   })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
+  .superRefine((data, ctx) => {
+    // password match validation
+    if (data.password !== data.confirmPassword) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+      });
+    }
+
+    // conditional storeId validation
+    if (data.role !== "SUPERADMIN" && !data.storeId) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Store is required",
+        path: ["storeId"],
+      });
+    }
   });

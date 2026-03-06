@@ -3,31 +3,36 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, CircleChevronRight, Loader } from "lucide-react";
-import { Activity, useEffect, useState } from "react";
+import { Activity, useEffect, useMemo, useState } from "react";
 import { Button } from "./button";
 
-const ComboboxField = ({ listTypes, valueProps, setValueProps, debounce = 500, onValueChange, isLoading, isDisabled }: ComboboxFieldProps) => {
+const ComboboxField = ({ listTypes, valueProps, setValueProps, placeholderProps, productCodeProps, debounce = 500, onValueChange, isLoading, isDisabled }: ComboboxFieldProps) => {
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(valueProps);
   const [search, setSearch] = useState("");
 
+  const selectedItem = useMemo(() => listTypes.find((list) => list.id === internalValue), [listTypes, internalValue]);
+
   useEffect(() => {
+    if (!open) {
+      setSearch("");
+      return;
+    }
+
     const timer = setTimeout(() => {
       onValueChange?.(search);
     }, debounce);
 
     return () => clearTimeout(timer);
-  }, [onValueChange, search, debounce]);
+  }, [onValueChange, search, debounce, open]);
 
   useEffect(() => {
     setInternalValue(valueProps);
   }, [valueProps]);
 
-  const selectedItem = listTypes.find((list) => list.id === internalValue);
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild disabled={isDisabled}>
+      <PopoverTrigger asChild disabled={isDisabled} className="border-inherit">
         <Button variant="outline" role="combobox" aria-expanded={open} className="justify-between w-full">
           {internalValue && selectedItem ? (
             <div className="flex items-center gap-2">
@@ -36,6 +41,10 @@ const ComboboxField = ({ listTypes, valueProps, setValueProps, debounce = 500, o
                 <CircleChevronRight />
                 <span>{selectedItem.productCode}</span>
               </Activity>
+            </div>
+          ) : placeholderProps && productCodeProps ? (
+            <div className="flex items-center gap-2">
+              <span>{placeholderProps}</span>
             </div>
           ) : (
             "Select List..."
@@ -66,6 +75,7 @@ const ComboboxField = ({ listTypes, valueProps, setValueProps, debounce = 500, o
 
                     setValueProps(splitValue === internalValue ? "" : splitValue);
                     setOpen(false);
+                    setSearch("");
                   }}>
                   {list.name} {list.productCode && <CircleChevronRight />} {list.productCode}
                   <Check className={cn("ml-auto", internalValue === list.id ? "opacity-100" : "opacity-0")} />

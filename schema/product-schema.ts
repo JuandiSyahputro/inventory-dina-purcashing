@@ -15,10 +15,10 @@ export const ProductAdminSchema = z.object({
   remarks: z.string().optional(),
   name: z.string().min(1, "Name must be at least 1 characters"),
   stockIn: z.string().min(1, "In stock must be at least 1"),
-  unitId: z.string().min(3, "User Id must be at least 3 characters"),
-  vendorId: z.string().min(3, "User Id must be at least 3 characters"),
-  categoryId: z.string().min(3, "User Id must be at least 3 characters"),
-  storeId: z.string().min(3, "User Id must be at least 3 characters"),
+  unitId: z.string().min(3, "Unit must be required"),
+  vendorId: z.string().min(3, "Vendor must be required"),
+  categoryId: z.string().min(3, "Category must be required"),
+  storeId: z.string().min(3, "Store must be required"),
 });
 
 export const ProductRejectedSchema = z.object({

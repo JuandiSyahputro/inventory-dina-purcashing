@@ -1,9 +1,8 @@
 "use server";
 
 import { auth } from "@/auth";
+import { generateCacheKey, getCache, invalidateCache, setCache } from "@/lib/cache";
 import { prisma } from "@/lib/prisma";
-import { PRODUCTS_CACHE_TTL, redis } from "@/lib/redis";
-import { generateCacheKey } from "@/lib/utils";
 import { RegisterSchema } from "@/schema/auth-schema";
 import { ChangePassSchema, DeletedSchema, EditUserSchema } from "@/schema/users-schema";
 import { Prisma, Role } from "@prisma/client";
@@ -30,13 +29,14 @@ export const addUsers = async (FormData: FormData) => {
     const response = await prisma.users.create({
       data: {
         name,
-        storeId,
+        storeId: storeId || null,
         password: hashPassword,
         role: role as Role,
       },
     });
 
     if (response) {
+      await invalidateCache("users");
       return {
         message: "User created successfully",
         success: true,
@@ -61,13 +61,15 @@ export const addUsers = async (FormData: FormData) => {
 };
 
 export const getUsers = async (props: FetchDataPropsTypes) => {
-  const cacheKey = generateCacheKey({ typeCache: "users", queryParams: props });
+  const cacheKey = await generateCacheKey({ typeCache: "users", queryParams: props });
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await getCache(cacheKey);
+
     if (cached) {
       const dataCached = typeof cached === "string" ? JSON.parse(cached) : cached;
       return dataCached;
     }
+
     const { limit, offset, search } = props;
 
     const where: Prisma.UsersWhereInput = {
@@ -97,7 +99,7 @@ export const getUsers = async (props: FetchDataPropsTypes) => {
       data: users,
     };
 
-    await redis.set(cacheKey, result, { ex: PRODUCTS_CACHE_TTL });
+    await setCache(cacheKey, JSON.stringify(result));
 
     return result;
   } catch (error) {
@@ -129,13 +131,14 @@ export const updateUsers = async (id: string, formData: FormData) => {
       },
       data: {
         name,
-        storeId,
+        storeId: storeId || null,
         email: email !== "" ? email : null,
         role: role as Role,
       },
     });
 
     if (response) {
+      await invalidateCache("users");
       return {
         message: "User updated successfully",
         success: true,
@@ -174,6 +177,7 @@ export const deleteUsers = async (id: string) => {
     });
 
     if (response) {
+      await invalidateCache("users");
       return {
         message: "User deleted successfully",
         success: true,

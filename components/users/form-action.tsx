@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronsUpDown, EyeIcon, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
@@ -34,10 +34,10 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
+  const onSubmit: SubmitHandler<z.infer<typeof RegisterSchema>> = async (data: z.infer<typeof RegisterSchema>) => {
     const formData = new FormData();
     formData.append("name", data.name);
-    formData.append("storeId", data.storeId);
+    formData.append("storeId", data.storeId ?? "");
     formData.append("role", data.role);
     formData.append("password", data.password);
     formData.append("confirmPassword", data.confirmPassword);
@@ -101,7 +101,7 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="name">Username</FieldLabel>
-                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Jhon Doe...." />
+                  <Input aria-invalid={fieldState.invalid} {...field} id="name" placeholder="Jhon Doe...." className="aria-invalid:placeholder:text-destructive" />
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                 </Field>
               )}
@@ -112,7 +112,14 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="storename">Store Name</FieldLabel>
-                  <Button variant="outline" className="w-full justify-between" role="combobox" aria-expanded={open} onClick={() => setOpen(true)} aria-invalid={fieldState.invalid} type="button">
+                  <Button
+                    aria-invalid={fieldState.invalid}
+                    variant="outline"
+                    className="w-full justify-between text-muted-foreground aria-invalid:text-destructive"
+                    role="combobox"
+                    aria-expanded={open}
+                    onClick={() => setOpen(true)}
+                    type="button">
                     {field.value ? stores.find((item) => item.id === field.value)?.name : "Choose a store"}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </Button>
@@ -122,16 +129,18 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                       <CommandEmpty>No data found.</CommandEmpty>
                       <CommandGroup>
                         {stores.map((item) => (
-                          <CommandItem
-                            key={item.id}
-                            onSelect={(currentValue) => {
-                              setOpen(!open);
-                              field.onChange(field.value == currentValue ? "" : currentValue);
-                              form.setValue("storeId", item.id);
-                            }}>
-                            <Check className={cn("mr-2 h-4 w-4", field.value === item.id ? "opacity-100" : "opacity-0")} />
-                            {item.name}
-                          </CommandItem>
+                          <>
+                            <CommandItem
+                              key={item.id}
+                              onSelect={(currentValue) => {
+                                setOpen(!open);
+                                field.onChange(field.value == currentValue ? "" : currentValue);
+                                form.setValue("storeId", item.id);
+                              }}>
+                              <Check className={cn("mr-2 h-4 w-4", field.value === item.id ? "opacity-100" : "opacity-0")} />
+                              {item.name}
+                            </CommandItem>
+                          </>
                         ))}
                       </CommandGroup>
                     </CommandList>
@@ -147,8 +156,11 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="storename">Role</FieldLabel>
                   <Select name={field.name} value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger id="form-rhf-select-language" aria-invalid={fieldState.invalid} className="min-w-[120px]">
-                      <SelectValue placeholder="Select" />
+                    <SelectTrigger
+                      id="form-rhf-select-language"
+                      aria-invalid={fieldState.invalid}
+                      className="min-w-[120px] aria-invalid:[&_span:not([class*='text-'])]:text-destructive aria-invalid:[&_svg:not([class*='text-'])]:text-destructive">
+                      <SelectValue placeholder="Select..." />
                     </SelectTrigger>
                     <SelectContent position="item-aligned">
                       <SelectItem value="SUPERADMIN">SUPERADMIN</SelectItem>
@@ -174,10 +186,15 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="**********"
                       autoComplete="new-password"
-                      className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white"
+                      className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white aria-invalid:placeholder:text-destructive"
                     />
-                    <Button tabIndex={-1} className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer" onClick={() => setShowPassword(!showPassword)} type="button">
-                      {!showPassword ? <EyeOff className="text-foreground" size={15} /> : <EyeIcon className="text-foreground" size={15} />}
+                    <Button
+                      aria-invalid={fieldState.invalid}
+                      tabIndex={-1}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer aria-invalid:[&_svg:not([class*='text-'])]:text-destructive text-foreground"
+                      onClick={() => setShowPassword(!showPassword)}
+                      type="button">
+                      {!showPassword ? <EyeOff className="opacity-50" size={15} /> : <EyeIcon className="opacity-50" size={15} />}
                     </Button>
                   </div>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -198,10 +215,15 @@ const FormActionUsers = ({ stores }: StoreTypes) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="**********"
                       autoComplete="new-password"
-                      className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white"
+                      className="focus-visible:ring-custom-primary-dark focus-visible:placeholder:text-custom-primary focus-visible:text-custom-primary-dark max-lg:focus-visible:text-white  max-lg:text-white aria-invalid:placeholder:text-destructive"
                     />
-                    <Button tabIndex={-1} className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer" onClick={() => setShowPassword(!showPassword)} type="button">
-                      {!showPassword ? <EyeOff className="text-foreground" size={15} /> : <EyeIcon className="text-foreground" size={15} />}
+                    <Button
+                      aria-invalid={fieldState.invalid}
+                      tabIndex={-1}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 bg-transparent hover:bg-transparent hover:cursor-pointer aria-invalid:[&_svg:not([class*='text-'])]:text-destructive text-foreground"
+                      onClick={() => setShowPassword(!showPassword)}
+                      type="button">
+                      {!showPassword ? <EyeOff className="opacity-50" size={15} /> : <EyeIcon className="opacity-50" size={15} />}
                     </Button>
                   </div>
                   {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
