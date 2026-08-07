@@ -5,7 +5,7 @@ import ShinyText from "@/components/shiny-text";
 export default function LoginPage() {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="absolute z-10 flex flex-col w-full gap-4 p-2 -translate-x-1/2 -translate-y-1/2 lg:pb-4 md:p-10 lg:relative top-1/2 left-1/2">
+      <div className="absolute z-10 flex flex-col w-full gap-4 p-2 -translate-x-1/2 max-w-lg:-translate-y-1/2 lg:pb-4 md:p-10 lg:relative top-1/2 left-1/2">
         <div className="flex items-center justify-center flex-1 p-5 rounded-lg max-lg:bg-gray-500/50 backdrop-blur-2xl">
           <div className="w-full max-w-xs lg:max-w-xs md:max-w-xl ">
             <LoginForm />
